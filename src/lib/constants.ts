@@ -280,7 +280,7 @@ export const API_ENDPOINTS = {
   SESSION_PAUSE: (id: string) => `/api/v1/sessions/${id}/pause`,
   SESSION_RESUME: (id: string) => `/api/v1/sessions/${id}/resume`,
   SESSION_FINISH: (id: string) => `/api/v1/sessions/${id}/finish`,
-  SESSION_MONITOR: (id: string) => `/api/v1/sessions/${id}/monitor`,
+  SESSION_MONITOR: (id: string) => `/api/v1/sessions/${id}/control-monitor`,
   SESSION_NOTES: (id: string, round: number) =>
     `/api/v1/sessions/${id}/rounds/${round}/notes`,
   SESSION_PROGRESS: (id: string) => `/api/v1/sessions/${id}/progress`,

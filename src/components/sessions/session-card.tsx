@@ -59,9 +59,9 @@ export function SessionCard({
   const handleClick = () => {
     // Navigate based on session status
     if (session.status === 'draft') {
-      router.push(`/teacher/session/${session.id}/setup`);
+      router.push(`/teacher/sessions/${session.id}/setup`);
     } else {
-      router.push(`/teacher/session/${session.id}/monitor`);
+      router.push(`/teacher/sessions/${session.id}/monitor`);
     }
   };
 

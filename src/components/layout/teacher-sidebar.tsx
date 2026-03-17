@@ -75,7 +75,7 @@ const sessionNavItems: NavItem[] = [
   },
   {
     label: 'Rapport Final',
-    href: '/report',
+    href: '/final',
     icon: Trophy,
   },
 ];
@@ -89,7 +89,7 @@ export function TeacherSidebar() {
   const { user } = useAuthStore();
 
   // Check if we're in a session context
-  const sessionMatch = pathname.match(/\/teacher\/session\/([^/]+)/);
+  const sessionMatch = pathname.match(/\/teacher\/sessions\/([^/]+)/);
   const sessionId = sessionMatch?.[1];
   const isInSession = !!sessionId;
 
@@ -102,7 +102,7 @@ export function TeacherSidebar() {
   };
 
   const isSessionItemActive = (sessionHref: string) => {
-    const fullPath = `/teacher/session/${sessionId}${sessionHref}`;
+    const fullPath = `/teacher/sessions/${sessionId}${sessionHref}`;
     return pathname === fullPath || pathname.startsWith(`${fullPath}/`);
   };
 
@@ -182,7 +182,7 @@ export function TeacherSidebar() {
               {sessionNavItems.map((item) => {
                 const Icon = item.icon;
                 const active = isSessionItemActive(item.href);
-                const fullPath = `/teacher/session/${sessionId}${item.href}`;
+                const fullPath = `/teacher/sessions/${sessionId}${item.href}`;
                 return (
                   <li key={item.href}>
                     <Link

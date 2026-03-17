@@ -125,7 +125,7 @@ export function CreateSessionDialog({
       const session = await createSession.mutateAsync(data);
       setOpen(false);
       onSuccess?.(session.id);
-      router.push(`/teacher/session/${session.id}/setup`);
+      router.push(`/teacher/sessions/${session.id}/setup`);
     } catch {
       // Error is handled by the mutation
     }

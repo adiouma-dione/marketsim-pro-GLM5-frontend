@@ -23,12 +23,11 @@ interface BreadcrumbItem {
 const routeLabels: Record<string, string> = {
   '/teacher': 'Tableau de bord',
   '/teacher/sessions': 'Mes Sessions',
-  '/teacher/session': 'Session',
   '/setup': 'Équipes & Setup',
   '/monitor': 'Console Pilotage',
   '/results': 'Résultats',
   '/analytics': 'Analytics',
-  '/report': 'Rapport Final',
+  '/final': 'Rapport Final',
   '/settings': 'Paramètres',
   '/game': 'Jeu',
   '/game/dashboard': 'Tableau de bord',
