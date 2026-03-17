@@ -29,6 +29,24 @@ interface ChartDataPoint {
   [teamId: string]: number | string;
 }
 
+function lightenHex(color: string, amount = 0.25) {
+  if (!color) return color;
+  const normalized = color.startsWith('#') ? color.slice(1) : color;
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return color;
+  const num = parseInt(normalized, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  const mix = (channel: number) =>
+    Math.round(channel + (255 - channel) * amount);
+  const toHex = (channel: number) => channel.toString(16).padStart(2, '0');
+  return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
+}
+
+function getChartColor(color?: string) {
+  return lightenHex(color || '#60A5FA', 0.2);
+}
+
 export function PdmLineChart({
   roundsData,
   title = 'Évolution de la part de marché',
@@ -138,15 +156,16 @@ export function PdmLineChart({
             />
             {teamIds.map((teamId) => {
               const teamInfo = teamInfoMap.get(teamId)!;
+              const lineColor = getChartColor(teamInfo.color);
               return (
                 <Line
                   key={teamId}
                   type="monotone"
                   dataKey={teamId}
-                  stroke={teamInfo.color}
+                  stroke={lineColor}
                   strokeWidth={2}
-                  dot={<CustomDot color={teamInfo.color} />}
-                  activeDot={{ r: 6, strokeWidth: 2 }}
+                  dot={<CustomDot color={lineColor} />}
+                  activeDot={{ r: 6, strokeWidth: 2, stroke: lineColor }}
                 />
               );
             })}
@@ -304,14 +323,15 @@ export function MultiMetricLineChart({
             />
             {teamIds.map((teamId) => {
               const teamInfo = teamInfoMap.get(teamId)!;
+              const lineColor = getChartColor(teamInfo.color);
               return (
                 <Line
                   key={teamId}
                   type="monotone"
                   dataKey={teamId}
-                  stroke={teamInfo.color}
+                  stroke={lineColor}
                   strokeWidth={2}
-                  dot={<CustomDot color={teamInfo.color} />}
+                  dot={<CustomDot color={lineColor} />}
                 />
               );
             })}

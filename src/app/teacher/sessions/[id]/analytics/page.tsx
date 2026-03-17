@@ -6,9 +6,16 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import { Loader2, BarChart3, TrendingUp } from 'lucide-react';
+import { Loader2, BarChart3, TrendingUp, Triangle, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useSession } from '@/lib/hooks/use-sessions';
 import { useAllRoundsResults, useLeaderboard } from '@/lib/hooks/use-analytics';
 import { PdmLineChart, MultiMetricLineChart } from '@/components/charts/pdm-line-chart';
@@ -36,6 +43,7 @@ interface LeaderboardRanking {
   team_name: string;
   team_color?: string;
   rank: number;
+  rank_delta?: number;
   score?: number;
   metrics?: {
     cash?: number;
@@ -58,12 +66,14 @@ export default function AnalyticsPage() {
 
   // Fetch all rounds results
   const currentRound = session?.current_round || 0;
+  const lastCompletedRound =
+    session?.status === 'finished' ? currentRound : Math.max(0, currentRound - 1);
   const {
     isLoading: roundsLoading,
     isError,
     roundsData,
     allResults,
-  } = useAllRoundsResults(sessionId, currentRound);
+  } = useAllRoundsResults(sessionId, lastCompletedRound);
 
   // Fetch leaderboard
   const { data: leaderboard, isLoading: leaderboardLoading } =
@@ -80,8 +90,22 @@ export default function AnalyticsPage() {
     );
   }
 
+  const availableRounds = React.useMemo(
+    () => Array.from(roundsData.keys()).sort((a, b) => a - b),
+    [roundsData]
+  );
+  const lastAvailableRound = availableRounds[availableRounds.length - 1] || 0;
+  const [selectedRound, setSelectedRound] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!availableRounds.length) return;
+    setSelectedRound((prev) =>
+      availableRounds.includes(prev) ? prev : lastAvailableRound
+    );
+  }, [availableRounds, lastAvailableRound]);
+
   // No data state
-  if (!session || allResults.length === 0) {
+  if (!session || availableRounds.length === 0) {
     return (
       <div className="text-center py-12">
         <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -97,9 +121,11 @@ export default function AnalyticsPage() {
 
   // Get latest round results
   const latestResults = allResults[allResults.length - 1];
+  const selectedResults =
+    roundsData.get(selectedRound) || latestResults;
 
   // Build radar data for all teams
-  const radarData = latestResults.results.map((teamResult) =>
+  const radarData = selectedResults.results.map((teamResult) =>
     createTeamRadarData(
       teamResult.result,
       teamResult.team_name,
@@ -108,19 +134,85 @@ export default function AnalyticsPage() {
   );
 
   // Leaderboard rankings
-  const rankings: LeaderboardRanking[] = Array.isArray(leaderboard?.rankings)
-    ? (leaderboard.rankings as LeaderboardRanking[])
-    : [];
+  const rankings: LeaderboardRanking[] = React.useMemo(() => {
+    const raw = Array.isArray(leaderboard)
+      ? leaderboard
+      : Array.isArray(leaderboard?.rankings)
+        ? leaderboard.rankings
+        : [];
+
+    return raw.map((entry: Record<string, unknown>, index: number) => {
+      const scoreValue =
+        (entry.final_score as number | undefined) ??
+        (entry.score as number | undefined) ??
+        (entry.total_net_income as number | undefined);
+
+      const marketShare =
+        (entry.market_share as number | undefined) ??
+        (entry.average_market_share as number | undefined) ??
+        (entry.market_share_pct as number | undefined);
+
+      const satisfaction =
+        (entry.dimension_scores as Record<string, number> | undefined)?.customer_satisfaction ??
+        (entry.average_satisfaction as number | undefined) ??
+        (entry.metrics as Record<string, number> | undefined)?.satisfaction;
+
+      const rse =
+        (entry.dimension_scores as Record<string, number> | undefined)?.rse_score ??
+        (entry.metrics as Record<string, number> | undefined)?.rse;
+
+      const cash =
+        (entry.cash as number | undefined) ??
+        (entry.metrics as Record<string, number> | undefined)?.cash;
+
+      const rankDelta =
+        (entry.rank_delta as number | undefined) ??
+        (entry.delta as number | undefined);
+
+      return {
+        team_id: (entry.team_id as string) || `${index}`,
+        team_name: (entry.team_name as string) || 'Équipe',
+        team_color: (entry.team_color as string) || (entry.color_hex as string),
+        rank: (entry.rank as number) || index + 1,
+        rank_delta: typeof rankDelta === 'number' ? rankDelta : undefined,
+        score: typeof scoreValue === 'number' ? scoreValue : undefined,
+        metrics: {
+          cash: typeof cash === 'number' ? cash : undefined,
+          market_share: typeof marketShare === 'number' ? marketShare : undefined,
+          satisfaction: typeof satisfaction === 'number' ? satisfaction : undefined,
+          rse: typeof rse === 'number' ? rse : undefined,
+        },
+      };
+    });
+  }, [leaderboard]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-semibold text-gray-900">Analyses</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {session.name} • {currentRound} tour{currentRound > 1 ? 's' : ''}{' '}
-          joué{currentRound > 1 ? 's' : ''}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-gray-500">
+            {session.name} • {availableRounds.length} tour
+            {availableRounds.length > 1 ? 's' : ''} joué
+            {availableRounds.length > 1 ? 's' : ''}
+          </p>
+          <Select
+            value={selectedRound ? String(selectedRound) : ''}
+            onValueChange={(value) => setSelectedRound(Number(value))}
+          >
+            <SelectTrigger className="w-[160px] h-8">
+              <SelectValue placeholder="Choisir un tour" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableRounds.map((round) => (
+                <SelectItem key={round} value={String(round)}>
+                  Tour {round}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Charts Tabs */}
@@ -138,7 +230,7 @@ export default function AnalyticsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MarketBarChart
-              sessionResults={latestResults}
+              sessionResults={selectedResults}
               title="Marketing vs Part de marché"
             />
             <MultiMetricLineChart
@@ -174,8 +266,8 @@ export default function AnalyticsPage() {
                 v >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${v}€`
               }
             />
-            <MarketBarChart
-              sessionResults={latestResults}
+          <MarketBarChart
+              sessionResults={selectedResults}
               title="Comparaison des revenus"
               showMarketing={false}
               showRevenue={true}
@@ -185,7 +277,7 @@ export default function AnalyticsPage() {
 
         {/* Position Tab */}
         <TabsContent value="position" className="space-y-6">
-          <ScatterPlot sessionResults={latestResults} />
+          <ScatterPlot sessionResults={selectedResults} />
         </TabsContent>
 
         {/* Profiles Tab */}
@@ -220,7 +312,7 @@ export default function AnalyticsPage() {
       {/* Pedagogical Notes */}
       <PedagogicalNotes
         sessionId={sessionId}
-        round={currentRound}
+        round={selectedRound || lastAvailableRound}
         title="Observations pédagogiques globales"
       />
     </div>
@@ -237,7 +329,7 @@ function LeaderboardTable({ rankings }: { rankings: LeaderboardRanking[] }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[80px]">Rang</TableHead>
+            <TableHead className="w-[90px] text-center">Rang</TableHead>
             <TableHead>Équipe</TableHead>
             <TableHead className="text-right">Score</TableHead>
             <TableHead className="text-right">Trésorerie</TableHead>
@@ -249,12 +341,31 @@ function LeaderboardTable({ rankings }: { rankings: LeaderboardRanking[] }) {
         <TableBody>
           {rankings.map((team, index) => (
             <TableRow key={team.team_id}>
-              <TableCell>
-                {team.rank || index + 1 === 1 ? (
-                  <span className="text-yellow-500 font-bold">1</span>
-                ) : (
-                  <Badge variant="outline">{team.rank || index + 1}</Badge>
-                )}
+              <TableCell className="text-center">
+                {(() => {
+                  const rank = team.rank ?? index + 1;
+                  const delta = team.rank_delta ?? 0;
+
+                  const deltaIndicator =
+                    delta > 0 ? (
+                      <Triangle className="h-3 w-3 text-emerald-500" />
+                    ) : delta < 0 ? (
+                      <Triangle className="h-3 w-3 rotate-180 text-red-500" />
+                    ) : (
+                      <Minus className="h-3 w-3 text-orange-500" />
+                    );
+
+                  return (
+                    <div className="inline-flex items-center justify-center gap-2">
+                      {rank === 1 ? (
+                        <span className="text-lg">🏆</span>
+                      ) : (
+                        <Badge variant="outline">{rank}</Badge>
+                      )}
+                      <span className="text-xs">{deltaIndicator}</span>
+                    </div>
+                  );
+                })()}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -268,7 +379,7 @@ function LeaderboardTable({ rankings }: { rankings: LeaderboardRanking[] }) {
                 </div>
               </TableCell>
               <TableCell className="text-right font-semibold">
-                {team.score?.toFixed(1) || '-'}
+                {team.score !== undefined ? team.score.toFixed(1) : '-'}
               </TableCell>
               <TableCell className="text-right">
                 {team.metrics?.cash !== undefined

@@ -37,6 +37,19 @@ interface TeamRadarData {
   };
 }
 
+function lightenHex(color: string, amount = 0.25) {
+  if (!color) return color;
+  const normalized = color.startsWith('#') ? color.slice(1) : color;
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return color;
+  const num = parseInt(normalized, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  const mix = (channel: number) =>
+    Math.round(channel + (255 - channel) * amount);
+  const toHex = (channel: number) => channel.toString(16).padStart(2, '0');
+  return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
+}
 // ------------------------------------------------------------
 // Team Radar Chart Component
 // ------------------------------------------------------------
@@ -143,9 +156,9 @@ export function TeamRadarChart({
                     <Radar
                       name={team.teamName}
                       dataKey={team.teamId}
-                      stroke={team.teamColor}
-                      fill={team.teamColor}
-                      fillOpacity={0.3}
+                      stroke={lightenHex(team.teamColor, 0.2)}
+                      fill={lightenHex(team.teamColor, 0.5)}
+                      fillOpacity={0.35}
                     />
                   </RechartsRadarChart>
                 </ResponsiveContainer>
@@ -217,9 +230,9 @@ export function TeamRadarChart({
                 key={team.teamId}
                 name={team.teamId}
                 dataKey={team.teamId}
-                stroke={team.teamColor}
-                fill={team.teamColor}
-                fillOpacity={0.15}
+                stroke={lightenHex(team.teamColor, 0.2)}
+                fill={lightenHex(team.teamColor, 0.5)}
+                fillOpacity={0.25}
                 strokeWidth={2}
               />
             ))}
@@ -259,7 +272,7 @@ export function createTeamRadarData(
     teamColor,
     metrics: {
       ROI: Math.min(100, Math.max(0, roi)),
-      PDM: Math.min(100, Math.max(0, result.market_share_pct * 5)), // Scale up for visibility
+      PDM: Math.min(100, Math.max(0, result.market_share_pct)),
       Finance: Math.min(100, Math.max(0, financeScore)),
       Satisfaction: Math.min(100, Math.max(0, result.customer_satisfaction)),
       RSE: Math.min(100, Math.max(0, result.rse_score)),
@@ -309,9 +322,9 @@ export function SingleTeamRadar({ teamData, title, height = 300 }: SingleRadarPr
             <Radar
               name={teamData.teamName}
               dataKey="value"
-              stroke={teamData.teamColor}
-              fill={teamData.teamColor}
-              fillOpacity={0.3}
+              stroke={lightenHex(teamData.teamColor, 0.2)}
+              fill={lightenHex(teamData.teamColor, 0.5)}
+              fillOpacity={0.35}
               strokeWidth={2}
             />
           </RechartsRadarChart>

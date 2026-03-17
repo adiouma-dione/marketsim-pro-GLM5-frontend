@@ -36,6 +36,20 @@ interface ScatterDataPoint {
   unitsSold: number;
 }
 
+function lightenHex(color: string, amount = 0.35) {
+  if (!color) return color;
+  const normalized = color.startsWith('#') ? color.slice(1) : color;
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return color;
+  const num = parseInt(normalized, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  const mix = (channel: number) =>
+    Math.round(channel + (255 - channel) * amount);
+  const toHex = (channel: number) => channel.toString(16).padStart(2, '0');
+  return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
+}
+
 export function ScatterPlot({
   sessionResults,
   title = 'Positionnement Prix vs Qualité',
@@ -220,13 +234,20 @@ export function ScatterPlot({
               fill="hsl(var(--primary))"
             >
               {data.map((entry, index) => (
+                (() => {
+                  const baseColor = entry.color || '#60A5FA';
+                  const fillColor = lightenHex(baseColor, 0.35);
+                  const strokeColor = lightenHex(baseColor, 0.15);
+                  return (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.color}
-                  fillOpacity={0.7}
-                  stroke={entry.color}
+                  fill={fillColor}
+                  fillOpacity={0.9}
+                  stroke={strokeColor}
                   strokeWidth={2}
                 />
+                  );
+                })()
               ))}
             </Scatter>
           </ScatterChart>

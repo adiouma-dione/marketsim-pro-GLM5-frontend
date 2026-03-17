@@ -50,7 +50,7 @@ export default function SettingsPage() {
   // Loading state
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6 px-2 pb-10">
         <div className="flex items-center gap-2">
           <SettingsIcon className="h-8 w-8 text-blue-600" />
           <Skeleton className="h-8 w-32" />
@@ -66,17 +66,17 @@ export default function SettingsPage() {
   const settingsUser = user as SettingsUser;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
-      <div>
+      <div className="max-w-4xl mx-auto space-y-6 px-2 pb-10">
+        {/* Header */}
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <SettingsIcon className="h-8 w-8 text-blue-600" />
+          <SettingsIcon className="h-7 w-7 text-blue-600" />
           <h1 className="text-2xl font-semibold text-gray-900">
             Paramètres
           </h1>
         </div>
-        <p className="text-sm text-gray-500 mt-1">
-          Gérez votre profil et vos préférences
+        <p className="text-sm text-gray-500">
+          Gérez les informations de votre compte et vos préférences.
         </p>
       </div>
 
@@ -87,7 +87,7 @@ export default function SettingsPage() {
       <PasswordForm />
 
       {/* Logout Card */}
-      <Card className="border-red-200">
+      <Card className="border-red-200 bg-red-50/40">
         <CardHeader>
           <CardTitle className="text-base">Déconnexion</CardTitle>
           <CardDescription>

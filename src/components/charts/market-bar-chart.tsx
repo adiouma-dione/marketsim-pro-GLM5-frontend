@@ -32,6 +32,11 @@ export function MarketBarChart({
   showMarketing = true,
   showRevenue = false,
 }: MarketBarChartProps) {
+  const colors = {
+    marketing: '#93C5FD', // blue-300
+    revenue: '#86EFAC', // green-300
+    marketShare: '#FDE68A', // amber-200
+  };
   const data = sessionResults.results.map((teamResult) => ({
     name: teamResult.team_name,
     color: teamResult.team_color,
@@ -104,7 +109,7 @@ export function MarketBarChart({
                 yAxisId="left"
                 dataKey="marketing"
                 name="Marketing"
-                fill="hsl(var(--primary))"
+                fill={colors.marketing}
                 radius={[4, 4, 0, 0]}
               />
             )}
@@ -113,7 +118,7 @@ export function MarketBarChart({
                 yAxisId="left"
                 dataKey="revenue"
                 name="Chiffre d'affaires"
-                fill="hsl(var(--chart-2))"
+                fill={colors.revenue}
                 radius={[4, 4, 0, 0]}
               />
             )}
@@ -121,7 +126,7 @@ export function MarketBarChart({
               yAxisId="right"
               dataKey="marketShare"
               name="Part de marché (%)"
-              fill="hsl(var(--chart-1))"
+              fill={colors.marketShare}
               radius={[4, 4, 0, 0]}
               opacity={0.7}
             />
