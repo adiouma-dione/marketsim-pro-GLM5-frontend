@@ -4,12 +4,35 @@
 
 import type { NextConfig } from 'next';
 
+const allowedDevOrigins = Array.from(
+  new Set(
+    (process.env.NEXT_ALLOWED_DEV_ORIGINS || '')
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+      .map((origin) => {
+        try {
+          return new URL(origin).hostname;
+        } catch {
+          return origin
+            .replace(/^https?:\/\//i, '')
+            .split('/')[0]
+            .split(':')[0];
+        }
+      })
+      .filter(Boolean)
+  )
+);
+
 const nextConfig: NextConfig = {
   // Output mode for production deployment
   output: 'standalone',
 
   // React strict mode for better development experience
   reactStrictMode: true,
+
+  // Allow dev origins from env (useful when accessing via LAN IP)
+  allowedDevOrigins: allowedDevOrigins.length ? allowedDevOrigins : undefined,
 
   // TypeScript configuration
   typescript: {

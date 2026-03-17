@@ -53,6 +53,7 @@ export function LaunchStep({ sessionId, onPrevious }: LaunchStepProps) {
   const startSession = useStartSession(sessionId);
 
   const isLoading = setupLoading || sessionLoading;
+  const isLocked = !!session && session.status !== 'draft';
 
   // Check if can start
   const teamCount = setup?.teams?.length || 0;
@@ -60,6 +61,7 @@ export function LaunchStep({ sessionId, onPrevious }: LaunchStepProps) {
 
   // Handle session start
   const handleStart = async () => {
+    if (isLocked) return;
     try {
       await startSession.mutateAsync();
       router.push(ROUTES.TEACHER_MONITOR(sessionId));
@@ -84,10 +86,21 @@ export function LaunchStep({ sessionId, onPrevious }: LaunchStepProps) {
         <h2 className="text-lg font-semibold text-gray-900">
           Récapitulatif et lancement
         </h2>
-        <p className="text-sm text-gray-500">
-          Vérifiez les paramètres avant de démarrer la session
-        </p>
-      </div>
+      <p className="text-sm text-gray-500">
+        Vérifiez les paramètres avant de démarrer la session
+      </p>
+    </div>
+
+      {isLocked && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Session déjà démarrée</AlertTitle>
+          <AlertDescription>
+            La configuration est verrouillée. Vous pouvez piloter la session depuis la
+            console.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Warning if not enough teams */}
       {!canStart && (
@@ -219,7 +232,7 @@ export function LaunchStep({ sessionId, onPrevious }: LaunchStepProps) {
         </Button>
         <Button
           onClick={handleStart}
-          disabled={!canStart || startSession.isPending}
+          disabled={!canStart || startSession.isPending || isLocked}
           className="gap-2 bg-green-600 hover:bg-green-700"
         >
           {startSession.isPending ? (

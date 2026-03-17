@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useSession } from '@/lib/hooks/use-sessions';
 
 // ------------------------------------------------------------
 // Types
@@ -52,34 +53,6 @@ const settingsNavItems: NavItem[] = [
   },
 ];
 
-const sessionNavItems: NavItem[] = [
-  {
-    label: 'Équipes & Setup',
-    href: '/setup',
-    icon: Users,
-  },
-  {
-    label: 'Console Pilotage',
-    href: '/monitor',
-    icon: Gamepad2,
-  },
-  {
-    label: 'Résultats',
-    href: '/results',
-    icon: BarChart2,
-  },
-  {
-    label: 'Analytics',
-    href: '/analytics',
-    icon: LineChart,
-  },
-  {
-    label: 'Rapport Final',
-    href: '/final',
-    icon: Trophy,
-  },
-];
-
 // ------------------------------------------------------------
 // Component
 // ------------------------------------------------------------
@@ -92,6 +65,34 @@ export function TeacherSidebar() {
   const sessionMatch = pathname.match(/\/teacher\/sessions\/([^/]+)/);
   const sessionId = sessionMatch?.[1];
   const isInSession = !!sessionId;
+  const { data: session } = useSession(sessionId ?? null);
+  const sessionNavItems: NavItem[] = [
+    {
+      label: 'Équipes & Setup',
+      href: '/setup',
+      icon: Users,
+    },
+    {
+      label: 'Console Pilotage',
+      href: '/monitor',
+      icon: Gamepad2,
+    },
+    {
+      label: 'Résultats',
+      href: '/results',
+      icon: BarChart2,
+    },
+    {
+      label: 'Analytics',
+      href: '/analytics',
+      icon: LineChart,
+    },
+    {
+      label: 'Rapport Final',
+      href: '/final',
+      icon: Trophy,
+    },
+  ];
 
   // Check if a nav item is active
   const isMainItemActive = (href: string) => {
@@ -181,8 +182,8 @@ export function TeacherSidebar() {
             <ul className="space-y-1 px-2">
               {sessionNavItems.map((item) => {
                 const Icon = item.icon;
-                const active = isSessionItemActive(item.href);
                 const fullPath = `/teacher/sessions/${sessionId}${item.href}`;
+                const active = isSessionItemActive(item.href);
                 return (
                   <li key={item.href}>
                     <Link

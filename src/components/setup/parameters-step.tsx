@@ -22,6 +22,8 @@ import {
   useSessionSetup,
   useUpdateSetup,
 } from '@/lib/hooks/use-session-setup';
+import { useSession } from '@/lib/hooks/use-sessions';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 // ------------------------------------------------------------
@@ -116,7 +118,9 @@ export function ParametersStep({
   onPrevious,
 }: ParametersStepProps) {
   const { data: setup, isLoading } = useSessionSetup(sessionId);
+  const { data: session } = useSession(sessionId);
   const updateSetup = useUpdateSetup(sessionId);
+  const isLocked = !!session && session.status !== 'draft';
 
   const {
     register,
@@ -134,6 +138,7 @@ export function ParametersStep({
 
   // Handle form submission
   const onSubmit = async (data: ParametersFormData) => {
+    if (isLocked) return;
     await updateSetup.mutateAsync({
       teams: setup?.teams || [],
       student_assignments: setup?.student_assignments || {},
@@ -169,6 +174,14 @@ export function ParametersStep({
         </p>
       </div>
 
+      {isLocked && (
+        <Alert>
+          <AlertDescription>
+            La session est démarrée. Les paramètres ne peuvent plus être modifiés.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,7 +193,7 @@ export function ParametersStep({
             tooltip="Montant initial disponible pour chaque équipe au début de la simulation. Un capital plus élevé permet des investissements initiaux plus importants."
             register={register}
             error={errors.starting_cash}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLocked}
           />
 
           {/* Interest Rate */}
@@ -191,7 +204,7 @@ export function ParametersStep({
             tooltip="Taux annuel appliqué aux emprunts. Un taux élevé pénalise les équipes endettées mais encourage la gestion prudente de la trésorerie."
             register={register}
             error={errors.interest_rate}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLocked}
           />
 
           {/* Energy Price */}
@@ -202,7 +215,7 @@ export function ParametersStep({
             tooltip="Coût unitaire de l'énergie consommée par les machines. Impacte directement les coûts de production et la rentabilité."
             register={register}
             error={errors.energy_price}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLocked}
           />
 
           {/* Base Market Demand */}
@@ -213,7 +226,7 @@ export function ParametersStep({
             tooltip="Demande initiale du marché pour le produit. Sert de base pour les calculs de ventes et peut évoluer avec les événements économiques."
             register={register}
             error={errors.base_market_demand}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLocked}
           />
         </div>
 
@@ -223,7 +236,7 @@ export function ParametersStep({
             type="submit"
             variant="outline"
             className="gap-2"
-            disabled={isSubmitting || !isDirty}
+            disabled={isSubmitting || !isDirty || isLocked}
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />

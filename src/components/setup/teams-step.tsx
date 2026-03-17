@@ -36,8 +36,10 @@ import {
   useDeleteTeam,
   useAssignStudent,
 } from '@/lib/hooks/use-session-setup';
+import { useSession } from '@/lib/hooks/use-sessions';
 import { TEAM_COLOR_PALETTE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 // ------------------------------------------------------------
 // Validation Schema
@@ -61,6 +63,7 @@ interface TeamsStepProps {
 
 export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
   const { data: setup, isLoading, error } = useSessionSetup(sessionId);
+  const { data: session } = useSession(sessionId);
   const createTeam = useCreateTeam(sessionId);
   const deleteTeam = useDeleteTeam(sessionId);
   const assignStudent = useAssignStudent(sessionId);
@@ -82,6 +85,8 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
     },
   });
 
+  const isLocked = !!session && session.status !== 'draft';
+
   // Get used colors
   const usedColors = new Set(setup?.teams?.map((t) => t.color_hex) || []);
 
@@ -101,6 +106,18 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
   };
 
   const unassignedStudents = getUnassignedStudents();
+
+  const teamsWithMembers = React.useMemo(() => {
+    if (!setup?.teams) return [];
+    const studentsById = new Map(setup.students?.map((s) => [s.id, s]) || []);
+    const assignments = setup.student_assignments || {};
+    return setup.teams.map((team) => ({
+      ...team,
+      members: (assignments[team.id] || [])
+        .map((id) => studentsById.get(id))
+        .filter((member): member is NonNullable<typeof member> => Boolean(member)),
+    }));
+  }, [setup]);
 
   // Handle team creation
   const onCreateTeam = async (data: CreateTeamFormData) => {
@@ -150,16 +167,26 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Gestion des équipes
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Gestion des équipes
+            </h2>
+            {isLocked && (
+              <Badge className="bg-amber-100 text-amber-900 border border-amber-200">
+                Lecture seule
+              </Badge>
+            )}
+          </div>
           <p className="text-sm text-gray-500">
             Créez des équipes et assignez les étudiants
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
+              disabled={isLocked}
+            >
               <Plus className="h-4 w-4" />
               Ajouter une équipe
             </Button>
@@ -238,15 +265,25 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
         </Dialog>
       </div>
 
+      {isLocked && (
+        <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            La session est démarrée. Les modifications d’équipes sont désactivées.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Teams Grid */}
       {setup?.teams && setup.teams.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {setup.teams.map((team) => (
+          {teamsWithMembers.map((team) => (
             <TeamCard
               key={team.id}
               team={team}
               onDelete={handleDeleteTeam}
               isDeleting={deleteTeam.isPending}
+              isLocked={isLocked}
             />
           ))}
         </div>
@@ -287,7 +324,7 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
                   onValueChange={(teamId) =>
                     handleAssignStudent(student.id, teamId)
                   }
-                  disabled={assignStudent.isPending}
+                  disabled={assignStudent.isPending || isLocked}
                 >
                   <SelectTrigger className="w-[180px] h-8">
                     <SelectValue placeholder="Assigner à..." />
@@ -313,12 +350,14 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
       )}
 
       {/* Navigation */}
-      <div className="flex justify-end pt-4 border-t border-gray-200">
-        <Button onClick={onNext} className="gap-2 bg-blue-600 hover:bg-blue-700">
-          Suivant
-          <span>→</span>
-        </Button>
-      </div>
+      {!isLocked && (
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <Button onClick={onNext} className="gap-2 bg-blue-600 hover:bg-blue-700">
+            Suivant
+            <span>→</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

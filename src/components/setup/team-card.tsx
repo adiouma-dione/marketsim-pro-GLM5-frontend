@@ -37,6 +37,7 @@ interface TeamCardProps {
   onCopyCode?: (code: string) => void;
   onDelete?: (teamId: string) => void;
   isDeleting?: boolean;
+  isLocked?: boolean;
   className?: string;
 }
 
@@ -45,6 +46,7 @@ export function TeamCard({
   onCopyCode,
   onDelete,
   isDeleting = false,
+  isLocked = false,
   className,
 }: TeamCardProps) {
   const [copied, setCopied] = React.useState(false);
@@ -92,7 +94,7 @@ export function TeamCard({
               size="icon"
               className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50"
               onClick={handleDelete}
-              disabled={isDeleting}
+              disabled={isDeleting || isLocked}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
