@@ -5,6 +5,7 @@
 'use client';
 
 import * as React from 'react';
+import { AppHeader } from '@/components/layout/app-header';
 import { StudentSidebar } from '@/components/layout/student-sidebar';
 
 // ------------------------------------------------------------
@@ -17,16 +18,14 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-gray-50">
       <StudentSidebar />
-
-      {/* Main Content */}
-      <main className="lg:ml-[220px] min-h-screen">
-        <div className="p-4 lg:p-6">
-          {children}
-        </div>
-      </main>
+      <div className="flex min-h-screen flex-1 flex-col">
+        <AppHeader />
+        <main className="flex-1">
+          <div className="p-4 lg:p-6">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }

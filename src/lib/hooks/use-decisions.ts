@@ -6,6 +6,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useCallback } from 'react';
+import axios from 'axios';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { apiGet, apiPost, apiPut } from '@/lib/api';
@@ -68,10 +69,19 @@ export const decisionsKeys = {
 export function useDecision(teamId: string, round: number) {
   return useQuery({
     queryKey: decisionsKeys.teamRound(teamId, round),
-    queryFn: () =>
-      apiGet<DecisionResponse>(
-        API_ENDPOINTS.DECISIONS_TEAM_ROUND(teamId, round)
-      ),
+    queryFn: async () => {
+      try {
+        return await apiGet<DecisionResponse>(
+          API_ENDPOINTS.DECISIONS_TEAM_ROUND(teamId, round)
+        );
+      } catch (error) {
+        // A missing decision for the current round is a valid empty state.
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          return null;
+        }
+        throw error;
+      }
+    },
     enabled: !!teamId && round > 0,
     staleTime: 30 * 1000,
   });

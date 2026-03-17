@@ -8,6 +8,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  BarChart2 as LogoChart,
   LayoutDashboard,
   ClipboardList,
   BarChart2,
@@ -16,13 +17,11 @@ import {
   Award,
   Settings,
   Loader2,
-  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { useMyTeam } from '@/lib/hooks/use-team-dashboard';
-import { ROUTES } from '@/lib/constants';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
 // ------------------------------------------------------------
@@ -66,6 +65,14 @@ const navItems: Array<{
   },
 ];
 
+const settingsNavItems = [
+  {
+    label: 'Paramètres',
+    href: '/settings',
+    icon: Settings,
+  },
+];
+
 // ------------------------------------------------------------
 // Sidebar Component
 // ------------------------------------------------------------
@@ -73,29 +80,34 @@ const navItems: Array<{
 export function StudentSidebar() {
   const pathname = usePathname();
   const { data: teamData, isLoading } = useMyTeam();
-  const logout = useAuthStore((state) => state.logout);
+  const { user } = useAuthStore();
 
   const team = teamData;
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = ROUTES.LOGIN;
+  const getInitials = (name?: string) => {
+    if (!name) return '?';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[220px] bg-[#1E2A3A] text-white flex flex-col z-40">
+    <aside className="w-[220px] h-screen bg-[#1E2A3A] sticky top-0 flex flex-col flex-shrink-0">
       {/* Logo */}
-      <div className="p-4 border-b border-[#374151]">
-        <Link href="/game/dashboard" className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">MS</span>
-          </div>
-          <span className="font-semibold text-lg">MarketSim</span>
-        </Link>
-      </div>
+      <Link
+        href="/game/dashboard"
+        className="flex items-center gap-2 px-4 py-4 hover:bg-white/5 transition-colors"
+      >
+        <LogoChart className="h-4 w-4 text-blue-400" />
+        <span className="font-semibold text-white">MarketSim Pro</span>
+      </Link>
+
+      <Separator className="bg-[#2D3A4A]" />
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -106,13 +118,38 @@ export function StudentSidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors',
                     isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-300 hover:bg-[#374151] hover:text-white'
+                      ? 'bg-blue-600/10 text-blue-400 border-l-2 border-blue-400 -ml-[2px] pl-[calc(0.75rem+2px)]'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   )}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        <Separator className="bg-[#2D3A4A] my-4" />
+        <ul className="space-y-1 px-2">
+          {settingsNavItems.map((item) => {
+            const Icon = item.icon;
+            const active = pathname.startsWith(item.href);
+
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors',
+                    active
+                      ? 'bg-blue-600/10 text-blue-400 border-l-2 border-blue-400 -ml-[2px] pl-[calc(0.75rem+2px)]'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
                   {item.label}
                 </Link>
               </li>
@@ -121,41 +158,35 @@ export function StudentSidebar() {
         </ul>
       </nav>
 
-      {/* Team Info Footer */}
-      <div className="p-4 border-t border-[#374151] space-y-3">
+      {/* User Profile */}
+      <div className="border-t border-[#2D3A4A] p-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-2">
             <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
           </div>
-        ) : team ? (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span
-                className="h-3 w-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: team.color_hex }}
-              />
-              <span className="text-sm text-white truncate">{team.name}</span>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#2D3A4A] flex items-center justify-center text-white text-sm font-medium">
+              {getInitials(user?.full_name || user?.email)}
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className="text-xs bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30">
-                Étudiant
-              </Badge>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-white font-medium truncate">
+                {team?.name || user?.full_name || 'Étudiant'}
+              </p>
+              <div className="mt-0.5 flex items-center gap-2">
+                {team?.color_hex ? (
+                  <span
+                    className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: team.color_hex }}
+                  />
+                ) : null}
+                <Badge className="bg-blue-100 text-blue-700 text-xs">
+                  Étudiant
+                </Badge>
+              </div>
             </div>
           </div>
-        ) : (
-          <p className="text-xs text-gray-400">Équipe non assignée</p>
         )}
-
-        {/* Logout Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full text-gray-300 hover:text-white hover:bg-[#374151] justify-start"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Déconnexion
-        </Button>
       </div>
     </aside>
   );
