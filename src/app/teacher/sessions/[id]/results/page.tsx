@@ -19,8 +19,12 @@ export default function ResultsIndexPage() {
 
   React.useEffect(() => {
     if (isLoading || !session) return;
-    const targetRound = Math.max(1, session.current_round || 1);
-    router.replace(ROUTES.TEACHER_RESULTS(sessionId, targetRound));
+    const currentRound = session.current_round || 0;
+    const lastCompletedRound =
+      session.status === 'finished' ? currentRound : currentRound - 1;
+    if (lastCompletedRound >= 1) {
+      router.replace(ROUTES.TEACHER_RESULTS(sessionId, lastCompletedRound));
+    }
   }, [isLoading, session, router, sessionId]);
 
   if (isLoading) {
@@ -37,6 +41,19 @@ export default function ResultsIndexPage() {
         <p className="text-muted-foreground">Session introuvable.</p>
         <Button variant="outline" onClick={() => router.push(ROUTES.TEACHER_SESSIONS)}>
           Retour aux sessions
+        </Button>
+      </div>
+    );
+  }
+
+  if (session.status !== 'finished' && (session.current_round || 0) <= 1) {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <p className="text-muted-foreground">
+          Aucun résultat disponible pour le moment. Lancez au moins un tour.
+        </p>
+        <Button variant="outline" onClick={() => router.push(ROUTES.TEACHER_MONITOR(sessionId))}>
+          Aller au pilotage
         </Button>
       </div>
     );

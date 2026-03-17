@@ -89,6 +89,7 @@ export const useAuthStore = create<AuthStore>()(
             refreshToken: tokens.refresh_token,
           });
           setCookie('auth-token', tokens.access_token, 1); // 1 day
+          setCookie('auth-refresh', tokens.refresh_token, 7); // 7 days
 
           // Step 2: Fetch user profile
           const meResponse = await fetch(`${API_URL}/api/v1/auth/me`, {
@@ -155,6 +156,7 @@ export const useAuthStore = create<AuthStore>()(
         } finally {
           // Clear all auth state
           deleteCookie('auth-token');
+          deleteCookie('auth-refresh');
           deleteCookie('auth-role');
           set(initialState);
         }
@@ -170,6 +172,7 @@ export const useAuthStore = create<AuthStore>()(
           refreshToken: tokens.refresh_token,
         });
         setCookie('auth-token', tokens.access_token, 1);
+        setCookie('auth-refresh', tokens.refresh_token, 7);
       },
 
       setUser: (user: UserResponse) => {
@@ -202,6 +205,7 @@ export const useAuthStore = create<AuthStore>()(
             refreshToken: tokens.refresh_token,
           });
           setCookie('auth-token', tokens.access_token, 1);
+          setCookie('auth-refresh', tokens.refresh_token, 7);
         } catch (error) {
           // Refresh failed, logout user
           get().logout();
@@ -215,6 +219,7 @@ export const useAuthStore = create<AuthStore>()(
 
       reset: () => {
         deleteCookie('auth-token');
+        deleteCookie('auth-refresh');
         deleteCookie('auth-role');
         set(initialState);
       },
