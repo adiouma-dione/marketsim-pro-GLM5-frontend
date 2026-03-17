@@ -1,0 +1,379 @@
+/* ============================================================
+   MarketSim Pro - Global Styles
+   ============================================================ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------
+   CSS Variables - MarketSim Pro Design Tokens
+   ------------------------------------------------------------ */
+
+@theme inline {
+  --color-background: #F9FAFB;
+  --color-foreground: #1F2937;
+  --font-sans: var(--font-inter);
+  
+  /* Card/Surface colors */
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1F2937;
+  
+  /* Popover colors */
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1F2937;
+  
+  /* Primary colors - Blue 600 */
+  --color-primary: #2563EB;
+  --color-primary-foreground: #FFFFFF;
+  
+  /* Secondary colors */
+  --color-secondary: #F3F4F6;
+  --color-secondary-foreground: #1F2937;
+  
+  /* Muted colors */
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #6B7280;
+  
+  /* Accent colors */
+  --color-accent: #F3F4F6;
+  --color-accent-foreground: #1F2937;
+  
+  /* Destructive colors */
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  
+  /* Border and Input */
+  --color-border: #E5E7EB;
+  --color-input: #E5E7EB;
+  --color-ring: #2563EB;
+  
+  /* Chart colors */
+  --color-chart-1: #2563EB;
+  --color-chart-2: #10B981;
+  --color-chart-3: #F59E0B;
+  --color-chart-4: #EF4444;
+  --color-chart-5: #8B5CF6;
+  
+  /* Sidebar colors - Dark sidebar #1E2A3A */
+  --color-sidebar: #1E2A3A;
+  --color-sidebar-foreground: #F9FAFB;
+  --color-sidebar-primary: #2563EB;
+  --color-sidebar-primary-foreground: #FFFFFF;
+  --color-sidebar-accent: #374151;
+  --color-sidebar-accent-foreground: #F9FAFB;
+  --color-sidebar-border: #374151;
+  --color-sidebar-ring: #2563EB;
+  
+  /* Radius */
+  --radius-sm: calc(0.375rem - 2px);
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: calc(0.5rem + 4px);
+}
+
+/* ------------------------------------------------------------
+   Root Variables
+   ------------------------------------------------------------ */
+
+:root {
+  --radius: 0.5rem;
+  --sidebar-width: 220px;
+}
+
+/* ------------------------------------------------------------
+   Dark Mode Variables
+   ------------------------------------------------------------ */
+
+.dark {
+  --color-background: #111827;
+  --color-foreground: #F9FAFB;
+  --color-card: #1F2937;
+  --color-card-foreground: #F9FAFB;
+  --color-popover: #1F2937;
+  --color-popover-foreground: #F9FAFB;
+  --color-primary: #3B82F6;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #374151;
+  --color-secondary-foreground: #F9FAFB;
+  --color-muted: #374151;
+  --color-muted-foreground: #9CA3AF;
+  --color-accent: #374151;
+  --color-accent-foreground: #F9FAFB;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #374151;
+  --color-input: #374151;
+  --color-ring: #3B82F6;
+}
+
+/* ------------------------------------------------------------
+   Base Styles
+   ------------------------------------------------------------ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-800;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-blue-600 ring-offset-2;
+  }
+}
+
+/* ------------------------------------------------------------
+   Typography
+   ------------------------------------------------------------ */
+
+@layer base {
+  h1 {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+  
+  h2 {
+    @apply text-xl font-semibold text-gray-900;
+  }
+  
+  h3 {
+    @apply text-lg font-semibold text-gray-900;
+  }
+  
+  h4 {
+    @apply text-base font-semibold text-gray-900;
+  }
+  
+  p {
+    @apply text-gray-600;
+  }
+}
+
+/* ------------------------------------------------------------
+   Utility Classes
+   ------------------------------------------------------------ */
+
+@utility tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility financial-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------
+   Scrollbar Styles
+   ------------------------------------------------------------ */
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+
+/* ------------------------------------------------------------
+   Animations
+   ------------------------------------------------------------ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@utility animate-slide-in-right {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+@utility animate-slide-in-top {
+  animation: slideInFromTop 0.2s ease-out;
+}
+
+/* Custom scrollbar for WebKit browsers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #D1D5DB;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #9CA3AF;
+}
+
+/* ------------------------------------------------------------
+   Skeleton loading animation
+   ------------------------------------------------------------ */
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: #E5E7EB;
+  border-radius: 0.25rem;
+}
+
+/* ------------------------------------------------------------
+   Print Styles
+   ------------------------------------------------------------ */
+
+@media print {
+  /* Hide non-print elements */
+  .print\:hidden,
+  nav,
+  aside,
+  button:not(.print\:visible),
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset backgrounds for printing */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  /* Show print-only elements */
+  .print\:block {
+    display: block !important;
+  }
+
+  .print\:visible {
+    display: visible !important;
+  }
+
+  /* Ensure tables don't break across pages */
+  table {
+    page-break-inside: avoid;
+  }
+
+  /* Prevent orphans and widows */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  p, li, blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Ensure images don't break */
+  img, svg {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Card styling for print */
+  [class*="Card"] {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+    break-inside: avoid;
+  }
+
+  /* Chart container for print */
+  .recharts-wrapper {
+    max-height: 400px !important;
+  }
+
+  /* Ensure proper page margins */
+  @page {
+    margin: 2cm;
+    size: A4 portrait;
+  }
+
+  /* Print header for final report */
+  h1 {
+    font-size: 18pt;
+    color: black !important;
+  }
+
+  h2 {
+    font-size: 14pt;
+    color: black !important;
+  }
+
+  /* Table styling for print */
+  th {
+    background-color: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Badge styling for print */
+  [class*="badge"] {
+    border: 1px solid currentColor !important;
+  }
+}
+
+/* ------------------------------------------------------------
+   Confetti Animation
+   ------------------------------------------------------------ */
+
+@keyframes confetti {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti {
+  animation: confetti 3s ease-out forwards;
+}
