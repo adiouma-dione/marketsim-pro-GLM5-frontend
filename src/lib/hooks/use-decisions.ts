@@ -5,7 +5,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -18,6 +18,54 @@ import type {
   DecisionCreate,
   DecisionUpdate,
 } from '@/lib/types';
+
+const breakdownQuantity = z.number().int().min(0);
+
+const marketingBreakdownSchema = z.object({
+  small_billboards: breakdownQuantity,
+  large_billboards: breakdownQuantity,
+  radio_spots: breakdownQuantity,
+  tv_spots: breakdownQuantity,
+  flyer_batches: breakdownQuantity,
+  digital_campaigns: breakdownQuantity,
+  adjustment: breakdownQuantity,
+});
+
+const maintenanceBreakdownSchema = z.object({
+  preventive_visits: breakdownQuantity,
+  spare_parts_kits: breakdownQuantity,
+  external_technician_days: breakdownQuantity,
+  predictive_maintenance_packs: breakdownQuantity,
+  safety_inspections: breakdownQuantity,
+  adjustment: breakdownQuantity,
+});
+
+const qhseBreakdownSchema = z.object({
+  safety_audits: breakdownQuantity,
+  protective_equipment_kits: breakdownQuantity,
+  evacuation_drills: breakdownQuantity,
+  waste_treatment_batches: breakdownQuantity,
+  iso_preparation_blocks: breakdownQuantity,
+  adjustment: breakdownQuantity,
+});
+
+const hrBreakdownSchema = z.object({
+  training_sessions: breakdownQuantity,
+  team_building_days: breakdownQuantity,
+  recruitment_campaigns: breakdownQuantity,
+  wellness_programs: breakdownQuantity,
+  bonus_packages: breakdownQuantity,
+  adjustment: breakdownQuantity,
+});
+
+const rdBreakdownSchema = z.object({
+  prototypes: breakdownQuantity,
+  lab_tests: breakdownQuantity,
+  user_studies: breakdownQuantity,
+  material_research_blocks: breakdownQuantity,
+  patent_watch_cycles: breakdownQuantity,
+  adjustment: breakdownQuantity,
+});
 
 // ------------------------------------------------------------
 // Zod Schema for Form Validation
@@ -33,6 +81,11 @@ export const decisionSchema = z.object({
   qhse_investment: z.number().int().min(0).max(100000),
   hr_investment: z.number().int().min(0).max(100000),
   avg_salary: z.number().int().min(1500).max(5000),
+  marketing_breakdown: marketingBreakdownSchema,
+  maintenance_breakdown: maintenanceBreakdownSchema,
+  qhse_breakdown: qhseBreakdownSchema,
+  hr_breakdown: hrBreakdownSchema,
+  rd_breakdown: rdBreakdownSchema,
 });
 
 export type DecisionFormData = z.infer<typeof decisionSchema>;
@@ -47,7 +100,109 @@ export const defaultDecisionValues: DecisionFormData = {
   qhse_investment: 0,
   hr_investment: 0,
   avg_salary: 2000,
+  marketing_breakdown: {
+    small_billboards: 0,
+    large_billboards: 0,
+    radio_spots: 0,
+    tv_spots: 0,
+    flyer_batches: 0,
+    digital_campaigns: 0,
+    adjustment: 10000,
+  },
+  maintenance_breakdown: {
+    preventive_visits: 0,
+    spare_parts_kits: 0,
+    external_technician_days: 0,
+    predictive_maintenance_packs: 0,
+    safety_inspections: 0,
+    adjustment: 5000,
+  },
+  qhse_breakdown: {
+    safety_audits: 0,
+    protective_equipment_kits: 0,
+    evacuation_drills: 0,
+    waste_treatment_batches: 0,
+    iso_preparation_blocks: 0,
+    adjustment: 0,
+  },
+  hr_breakdown: {
+    training_sessions: 0,
+    team_building_days: 0,
+    recruitment_campaigns: 0,
+    wellness_programs: 0,
+    bonus_packages: 0,
+    adjustment: 0,
+  },
+  rd_breakdown: {
+    prototypes: 0,
+    lab_tests: 0,
+    user_studies: 0,
+    material_research_blocks: 0,
+    patent_watch_cycles: 0,
+    adjustment: 0,
+  },
 };
+
+export function extractDecisionPayload(
+  data: DecisionFormData & { round_number?: number }
+): DecisionUpdate | DecisionCreate {
+  const payload = {
+    price_per_unit: data.price_per_unit,
+    production_volume: data.production_volume,
+    marketing_budget: data.marketing_budget,
+    maintenance_budget: data.maintenance_budget,
+    loan_amount: data.loan_amount,
+    rd_investment: data.rd_investment,
+    qhse_investment: data.qhse_investment,
+    hr_investment: data.hr_investment,
+    avg_salary: data.avg_salary,
+  };
+
+  if (typeof data.round_number === 'number') {
+    return {
+      ...payload,
+      round_number: data.round_number,
+    };
+  }
+
+  return payload;
+}
+
+export function buildDecisionBreakdownsFromTotals(
+  decision?: Partial<
+    Pick<
+      DecisionResponse,
+      | 'marketing_budget'
+      | 'maintenance_budget'
+      | 'qhse_investment'
+      | 'hr_investment'
+      | 'rd_investment'
+    >
+  >
+) {
+  return {
+    marketing_breakdown: {
+      ...defaultDecisionValues.marketing_breakdown,
+      adjustment: decision?.marketing_budget ?? defaultDecisionValues.marketing_budget,
+    },
+    maintenance_breakdown: {
+      ...defaultDecisionValues.maintenance_breakdown,
+      adjustment: decision?.maintenance_budget ?? defaultDecisionValues.maintenance_budget,
+    },
+    qhse_breakdown: {
+      ...defaultDecisionValues.qhse_breakdown,
+      adjustment: decision?.qhse_investment ?? defaultDecisionValues.qhse_investment,
+    },
+    hr_breakdown: {
+      ...defaultDecisionValues.hr_breakdown,
+      adjustment: decision?.hr_investment ?? defaultDecisionValues.hr_investment,
+    },
+    rd_breakdown: {
+      ...defaultDecisionValues.rd_breakdown,
+      adjustment: decision?.rd_investment ?? defaultDecisionValues.rd_investment,
+    },
+  };
+}
 
 // ------------------------------------------------------------
 // Query Keys
@@ -131,7 +286,7 @@ export function useAutosaveDecision(
     mutationFn: (data: DecisionUpdate) =>
       apiPut<DecisionResponse>(
         API_ENDPOINTS.DECISIONS_AUTOSAVE(teamId, round),
-        data
+        extractDecisionPayload(data as DecisionFormData)
       ),
     onSuccess: (response) => {
       // Update the cached decision
@@ -157,7 +312,10 @@ export function useSubmitDecision(teamId: string) {
 
   return useMutation({
     mutationFn: (data: DecisionCreate) =>
-      apiPost<DecisionResponse>(API_ENDPOINTS.DECISIONS_SUBMIT(teamId), data),
+      apiPost<DecisionResponse>(
+        API_ENDPOINTS.DECISIONS_SUBMIT(teamId),
+        extractDecisionPayload(data as DecisionFormData & { round_number: number })
+      ),
     onSuccess: (response) => {
       // Invalidate and refetch related queries
       queryClient.invalidateQueries({
@@ -211,7 +369,7 @@ export function useAutosaveForm(
   isLocked: boolean
 ) {
   const autosaveMutation = useAutosaveDecision(teamId, round);
-  const lastSavedRef = useRef<string>('');
+  const [lastSaved, setLastSaved] = useState('');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastValuesRef = useRef<string>('');
 
@@ -234,7 +392,7 @@ export function useAutosaveForm(
       timeoutRef.current = setTimeout(() => {
         autosaveMutation.mutate(values, {
           onSuccess: (response) => {
-            lastSavedRef.current = response.submitted_at;
+            setLastSaved(response.submitted_at);
           },
         });
       }, 30000);
@@ -278,7 +436,7 @@ export function useAutosaveForm(
   }, [autosaveMutation, isLocked]);
 
   return {
-    lastSaved: lastSavedRef.current,
+    lastSaved,
     isSaving: autosaveMutation.isPending,
   };
 }

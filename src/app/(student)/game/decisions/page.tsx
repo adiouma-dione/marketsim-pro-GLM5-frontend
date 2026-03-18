@@ -22,6 +22,8 @@ import {
   useAutosaveForm,
   useSubmitDecision,
   useBuyMachine,
+  buildDecisionBreakdownsFromTotals,
+  extractDecisionPayload,
   decisionSchema,
   defaultDecisionValues,
   type DecisionFormData,
@@ -73,8 +75,9 @@ export default function StudentDecisionsPage() {
 
   // Initialize form with existing decision data
   React.useEffect(() => {
-    if (decision && !decision.is_locked) {
+    if (decision) {
       reset({
+        ...defaultDecisionValues,
         price_per_unit: decision.price_per_unit ?? defaultDecisionValues.price_per_unit,
         production_volume: decision.production_volume ?? defaultDecisionValues.production_volume,
         marketing_budget: decision.marketing_budget ?? defaultDecisionValues.marketing_budget,
@@ -84,6 +87,7 @@ export default function StudentDecisionsPage() {
         qhse_investment: decision.qhse_investment ?? defaultDecisionValues.qhse_investment,
         hr_investment: decision.hr_investment ?? defaultDecisionValues.hr_investment,
         avg_salary: decision.avg_salary ?? defaultDecisionValues.avg_salary,
+        ...buildDecisionBreakdownsFromTotals(decision),
       });
     }
   }, [decision, reset]);
@@ -113,10 +117,12 @@ export default function StudentDecisionsPage() {
 
   // Handle decision submission
   const handleSubmit = () => {
-    submitDecision.mutate({
-      round_number: currentRound,
-      ...formValues,
-    });
+    submitDecision.mutate(
+      extractDecisionPayload({
+        ...formValues,
+        round_number: currentRound,
+      }) as never
+    );
   };
 
   // Calculate estimated cost per unit for marketing tab
