@@ -205,6 +205,7 @@ export interface ControlMonitorRow {
   team_name: string;
   team_color?: string;
   decisions_submitted: boolean;
+  decision_status?: 'pending' | 'draft' | 'submitted';
   cash: number;
   market_share: number;
   rank: number;

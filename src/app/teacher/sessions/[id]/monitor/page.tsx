@@ -159,7 +159,7 @@ export default function ControlPage({ params }: ControlPageProps) {
               <AlertTitle>En attente des décisions</AlertTitle>
               <AlertDescription>
                 {decisionStatus?.submitted_teams ?? 0}/{decisionStatus?.total_teams ?? 0} équipes
-                ont soumis leurs décisions pour ce tour.
+                ont enregistré une décision pour ce tour.
               </AlertDescription>
             </Alert>
           )}

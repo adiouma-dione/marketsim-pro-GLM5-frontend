@@ -48,11 +48,12 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
             État des équipes — Tour {currentRound}
           </h3>
           <p className="text-sm text-gray-500">
-            {submittedCount}/{totalCount} équipes ont soumis leurs décisions
+            {submittedCount}/{totalCount} équipes ont enregistré une décision
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            `Décisions` correspond au tour en cours. `Rang`, `PDM`, `QHSE` et `RSE`
-            correspondent au dernier tour déjà simulé.
+            `Décisions` correspond au tour en cours : `Brouillon` pour une décision enregistrée
+            mais non verrouillée, `Soumises` pour une décision verrouillée. `Rang`, `PDM`,
+            `QHSE` et `RSE` correspondent au dernier tour déjà simulé.
           </p>
         </div>
         <div className="w-48">
@@ -88,7 +89,7 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
                 <TableRow
                   key={row.team_id}
                   className={cn(
-                    !row.decisions_submitted && 'bg-amber-50/50'
+                    row.decision_status === 'pending' && 'bg-amber-50/50'
                   )}
                 >
                   {/* Color dot */}
@@ -127,7 +128,7 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
                   {/* Decision status */}
                   <TableCell className="text-center">
                     <DecisionStatusBadge
-                      status={row.decisions_submitted ? 'submitted' : 'pending'}
+                      status={row.decision_status ?? (row.decisions_submitted ? 'submitted' : 'pending')}
                     />
                   </TableCell>
 

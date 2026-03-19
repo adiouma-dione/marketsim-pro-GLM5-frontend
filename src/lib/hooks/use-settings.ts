@@ -7,7 +7,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { apiPut } from '@/lib/api';
+import { apiPost, apiPut } from '@/lib/api';
 import { API_ENDPOINTS } from '@/lib/constants';
 import type { UserResponse } from '@/lib/types';
 
@@ -71,7 +71,7 @@ export function usePasswordChange() {
 
   return useMutation({
     mutationFn: async (data: PasswordChangeFormData) => {
-      return await apiPut<{ message: string }>(
+      return await apiPost<{ message: string }>(
         API_ENDPOINTS.AUTH_CHANGE_PASSWORD,
         data
       );

@@ -109,13 +109,14 @@ export function UserRoleBadge({ role, className }: UserRoleBadgeProps) {
 }
 
 export interface DecisionStatusBadgeProps {
-  status: 'submitted' | 'pending' | 'locked';
+  status: 'submitted' | 'pending' | 'locked' | 'draft';
   className?: string;
 }
 
 export function DecisionStatusBadge({ status, className }: DecisionStatusBadgeProps) {
   const config = {
     submitted: { variant: 'success' as const, label: 'Soumises' },
+    draft: { variant: 'info' as const, label: 'Brouillon' },
     pending: { variant: 'warning' as const, label: 'En attente' },
     locked: { variant: 'error' as const, label: 'Verrouillées' },
   };
