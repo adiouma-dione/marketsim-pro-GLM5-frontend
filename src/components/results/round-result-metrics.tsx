@@ -7,7 +7,7 @@
 import * as React from 'react';
 import { TrendingUp, DollarSign, PieChart, Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { formatCurrency, formatNumber, formatPercentage } from '@/lib/utils';
+import { formatCurrency, formatNumber, formatPercent } from '@/lib/utils';
 import type { RoundResultData } from '@/lib/types';
 
 // ------------------------------------------------------------
@@ -23,6 +23,9 @@ interface RoundResultMetricsProps {
 // ------------------------------------------------------------
 
 export function RoundResultMetrics({ result }: RoundResultMetricsProps) {
+  const marketSharePercent =
+    result.market_share_pct <= 1 ? result.market_share_pct * 100 : result.market_share_pct;
+
   const metrics = [
     {
       label: 'Unités vendues',
@@ -47,7 +50,7 @@ export function RoundResultMetrics({ result }: RoundResultMetricsProps) {
     },
     {
       label: 'Part de marché',
-      value: formatPercentage(result.market_share_pct),
+      value: formatPercent(marketSharePercent),
       icon: PieChart,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',

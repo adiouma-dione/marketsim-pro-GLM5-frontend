@@ -87,7 +87,7 @@ export function SessionCard({
         <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
-            <span>0 équipe(s)</span>
+            <span>{session.teams_count ?? 0} équipe(s)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="font-medium text-gray-700">

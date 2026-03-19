@@ -132,7 +132,31 @@ export function useSessionLeaderboard(sessionId: string) {
       const response = await apiGet<LeaderboardResponse>(
         API_ENDPOINTS.LEADERBOARD(sessionId)
       );
-      return response as unknown as TypedLeaderboardResponse;
+      const rawRankings = Array.isArray((response as { rankings?: unknown[] }).rankings)
+        ? ((response as { rankings?: Record<string, unknown>[] }).rankings ?? [])
+        : [];
+
+      const rankings: LeaderboardRanking[] = rawRankings.map((entry, index) => ({
+        team_id: String(entry.team_id ?? index),
+        team_name: String(entry.team_name ?? 'Équipe'),
+        rank: typeof entry.rank === 'number' ? entry.rank : index + 1,
+        score:
+          typeof entry.final_score === 'number'
+            ? entry.final_score
+            : typeof entry.score === 'number'
+              ? entry.score
+              : typeof entry.total_net_income === 'number'
+                ? entry.total_net_income
+                : undefined,
+      }));
+
+      return {
+        rankings,
+        total_teams:
+          typeof (response as { total_teams?: unknown }).total_teams === 'number'
+            ? (response as { total_teams: number }).total_teams
+            : rankings.length,
+      } satisfies TypedLeaderboardResponse;
     },
     staleTime: 30 * 1000,
     enabled: !!sessionId,

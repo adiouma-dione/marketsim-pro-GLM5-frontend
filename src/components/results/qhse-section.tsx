@@ -9,7 +9,7 @@ import { Shield, AlertTriangle, Award, CheckCircle, XCircle } from 'lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatPercent } from '@/lib/utils';
 import type { RoundResultData } from '@/lib/types';
 
 // ------------------------------------------------------------
@@ -53,7 +53,7 @@ export function QhseSection({ result }: QhseSectionProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Score QHSE</span>
-              <span className="text-sm font-semibold">{result.qhse_score}/100</span>
+              <span className="text-sm font-semibold">{formatPercent(result.qhse_score)}</span>
             </div>
             <Progress
               value={result.qhse_score}

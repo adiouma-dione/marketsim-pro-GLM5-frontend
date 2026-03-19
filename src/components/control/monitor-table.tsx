@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { DecisionStatusBadge } from '@/components/ui/status-badge';
-import { formatCurrency, formatPercentage } from '@/lib/utils';
+import { formatCurrency, formatPercentage, formatPercent } from '@/lib/utils';
 import type { ControlMonitorRow } from '@/lib/types';
 
 // ------------------------------------------------------------
@@ -50,6 +50,10 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
           <p className="text-sm text-gray-500">
             {submittedCount}/{totalCount} équipes ont soumis leurs décisions
           </p>
+          <p className="text-xs text-gray-400 mt-1">
+            `Décisions` correspond au tour en cours. `Rang`, `PDM`, `QHSE` et `RSE`
+            correspondent au dernier tour déjà simulé.
+          </p>
         </div>
         <div className="w-48">
           <Progress value={progressPercent} className="h-2" />
@@ -62,11 +66,11 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="w-12"></TableHead>
+              <TableHead className="text-center">Rang</TableHead>
               <TableHead>Équipe</TableHead>
               <TableHead className="text-center">Décisions</TableHead>
               <TableHead className="text-right tabular-nums">Trésorerie</TableHead>
               <TableHead className="text-right tabular-nums">PDM</TableHead>
-              <TableHead className="text-center">Rang</TableHead>
               <TableHead className="text-center tabular-nums">QHSE</TableHead>
               <TableHead className="text-center">RSE</TableHead>
               <TableHead className="text-center">ISO</TableHead>
@@ -93,6 +97,26 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: row.team_color || '#3B82F6' }}
                     />
+                  </TableCell>
+
+                  {/* Rank */}
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {row.rank <= 3 ? (
+                        <span
+                          className={cn(
+                            'inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold',
+                            row.rank === 1 && 'bg-amber-100 text-amber-700',
+                            row.rank === 2 && 'bg-gray-100 text-gray-600',
+                            row.rank === 3 && 'bg-orange-100 text-orange-700'
+                          )}
+                        >
+                          {row.rank === 1 ? '🏆' : row.rank}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-600">{row.rank}</span>
+                      )}
+                    </div>
                   </TableCell>
 
                   {/* Team name */}
@@ -123,26 +147,6 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
                     {formatPercentage(row.market_share)}
                   </TableCell>
 
-                  {/* Rank */}
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {row.rank <= 3 ? (
-                        <span
-                          className={cn(
-                            'inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold',
-                            row.rank === 1 && 'bg-amber-100 text-amber-700',
-                            row.rank === 2 && 'bg-gray-100 text-gray-600',
-                            row.rank === 3 && 'bg-orange-100 text-orange-700'
-                          )}
-                        >
-                          {row.rank}
-                        </span>
-                      ) : (
-                        <span className="text-sm text-gray-600">{row.rank}</span>
-                      )}
-                    </div>
-                  </TableCell>
-
                   {/* QHSE Score */}
                   <TableCell className="text-center tabular-nums">
                     <span
@@ -154,9 +158,8 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
                             : 'text-red-600'
                       )}
                     >
-                      {row.qhse_score.toFixed(0)}
+                      {formatPercent(row.qhse_score, 0)}
                     </span>
-                    <span className="text-gray-400 text-xs">/100</span>
                   </TableCell>
 
                   {/* RSE Score */}
@@ -170,9 +173,8 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
                             : 'text-red-600'
                       )}
                     >
-                      {row.rse_score.toFixed(0)}
+                      {formatPercent(row.rse_score, 0)}
                     </span>
-                    <span className="text-gray-400 text-xs">/100</span>
                   </TableCell>
 
                   {/* ISO Badge */}

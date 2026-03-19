@@ -81,15 +81,6 @@ export default function AnalyticsPage() {
 
   const isLoading = sessionLoading || roundsLoading || leaderboardLoading;
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
   const availableRounds = React.useMemo(
     () => Array.from(roundsData.keys()).sort((a, b) => a - b),
     [roundsData]
@@ -103,35 +94,6 @@ export default function AnalyticsPage() {
       availableRounds.includes(prev) ? prev : lastAvailableRound
     );
   }, [availableRounds, lastAvailableRound]);
-
-  // No data state
-  if (!session || availableRounds.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">
-          Pas encore de données
-        </h2>
-        <p className="text-muted-foreground">
-          Les analyses seront disponibles après le premier tour de simulation.
-        </p>
-      </div>
-    );
-  }
-
-  // Get latest round results
-  const latestResults = allResults[allResults.length - 1];
-  const selectedResults =
-    roundsData.get(selectedRound) || latestResults;
-
-  // Build radar data for all teams
-  const radarData = selectedResults.results.map((teamResult) =>
-    createTeamRadarData(
-      teamResult.result,
-      teamResult.team_name,
-      teamResult.team_color
-    )
-  );
 
   // Leaderboard rankings
   const rankings: LeaderboardRanking[] = React.useMemo(() => {
@@ -185,6 +147,44 @@ export default function AnalyticsPage() {
       };
     });
   }, [leaderboard]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // No data state
+  if (!session || availableRounds.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          Pas encore de données
+        </h2>
+        <p className="text-muted-foreground">
+          Les analyses seront disponibles après le premier tour de simulation.
+        </p>
+      </div>
+    );
+  }
+
+  // Get latest round results
+  const latestResults = allResults[allResults.length - 1];
+  const selectedResults =
+    roundsData.get(selectedRound) || latestResults;
+
+  // Build radar data for all teams
+  const radarData = selectedResults.results.map((teamResult) =>
+    createTeamRadarData(
+      teamResult.result,
+      teamResult.team_name,
+      teamResult.team_color
+    )
+  );
 
   return (
     <div className="space-y-6">

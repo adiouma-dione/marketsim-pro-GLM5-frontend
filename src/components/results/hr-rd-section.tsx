@@ -9,7 +9,7 @@ import { Users, Lightbulb, AlertTriangle, Award, TrendingUp, Zap } from 'lucide-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { formatCurrency, formatPercentage } from '@/lib/utils';
+import { formatCurrency, formatPercent } from '@/lib/utils';
 import type { RoundResultData } from '@/lib/types';
 
 // ------------------------------------------------------------
@@ -35,6 +35,11 @@ const RD_MILESTONES = [
 // ------------------------------------------------------------
 
 export function HrRdSection({ result }: HrRdSectionProps) {
+  const motivationPercent =
+    result.motivation <= 1 ? result.motivation * 100 : result.motivation;
+  const productivityPercent =
+    result.productivity <= 1 ? result.productivity * 100 : result.productivity;
+
   // Only show if there's relevant activity
   const hasRelevantActivity =
     result.strike_days > 0 ||
@@ -71,15 +76,15 @@ export function HrRdSection({ result }: HrRdSectionProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Motivation</span>
                   <span className="text-sm font-semibold">
-                    {formatPercentage(result.motivation)}
+                    {formatPercent(motivationPercent)}
                   </span>
                 </div>
                 <Progress
-                  value={result.motivation * 100}
+                  value={motivationPercent}
                   className={`h-2 ${
-                    result.motivation >= 0.8
+                    motivationPercent >= 80
                       ? '[&>div]:bg-green-500'
-                      : result.motivation >= 0.5
+                      : motivationPercent >= 50
                       ? '[&>div]:bg-amber-500'
                       : '[&>div]:bg-red-500'
                   }`}
@@ -91,15 +96,15 @@ export function HrRdSection({ result }: HrRdSectionProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Productivité</span>
                   <span className="text-sm font-semibold">
-                    {formatPercentage(result.productivity)}
+                    {formatPercent(productivityPercent)}
                   </span>
                 </div>
                 <Progress
-                  value={result.productivity * 100}
+                  value={productivityPercent}
                   className={`h-2 ${
-                    result.productivity >= 0.8
+                    productivityPercent >= 80
                       ? '[&>div]:bg-green-500'
-                      : result.productivity >= 0.5
+                      : productivityPercent >= 50
                       ? '[&>div]:bg-amber-500'
                       : '[&>div]:bg-red-500'
                   }`}

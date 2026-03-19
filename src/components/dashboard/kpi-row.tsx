@@ -180,6 +180,8 @@ export function KPIRow({
   // Calculate deltas
   const cashDelta = previousCash ? ((cash - previousCash) / previousCash) * 100 : 0;
   const rankDelta = previousRank ? previousRank - rank : 0;
+  const satisfactionPercent = satisfaction <= 1 ? satisfaction * 100 : satisfaction;
+  const resolvedTotalTeams = Math.max(totalTeams || 0, rank || 0, 1);
 
   // Trend icons based on market share
   const TrendIcon = marketShare >= 50 ? TrendingUp : TrendingDown;
@@ -217,11 +219,11 @@ export function KPIRow({
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Satisfaction</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {satisfaction.toFixed(0)}<span className="text-sm text-muted-foreground">/100</span>
+                {formatPercent(satisfactionPercent)}
               </p>
             </div>
             <div className="relative">
-              <CircularProgress value={satisfaction} />
+              <CircularProgress value={satisfactionPercent} />
               <Star className="absolute inset-0 m-auto h-4 w-4 text-amber-500" />
             </div>
           </div>
@@ -231,7 +233,7 @@ export function KPIRow({
       {/* Classement */}
       <KPICard
         title="Classement"
-        value={`${rank}/${totalTeams}`}
+        value={`${rank}/${resolvedTotalTeams}`}
         icon={Trophy}
         iconColor="text-amber-500"
         delta={rankDelta}

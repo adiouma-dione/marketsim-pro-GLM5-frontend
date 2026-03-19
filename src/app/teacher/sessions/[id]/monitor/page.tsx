@@ -25,7 +25,6 @@ import {
 import { MonitorTable, IncidentLog } from '@/components/control/monitor-table';
 import {
   SimulationProgressBanner,
-  ConnectionStatus,
 } from '@/components/control/simulation-progress';
 import { InjectEventPanel } from '@/components/control/inject-event-panel';
 import { useControlMonitor, useDecisionStatus, useSimulateRound, useForceSubmit } from '@/lib/hooks/use-control-monitor';
@@ -66,7 +65,6 @@ export default function ControlPage({ params }: ControlPageProps) {
   const {
     progress: sseProgress,
     isRunning: sseRunning,
-    connectionStatus,
   } = useSimulationSSE({
     sessionId,
     enabled: isSimulating,
@@ -140,7 +138,6 @@ export default function ControlPage({ params }: ControlPageProps) {
             {session?.name} — Tour {currentRound}/{maxRounds}
           </p>
         </div>
-        <ConnectionStatus status={connectionStatus} />
       </div>
 
       {/* Status Banner */}

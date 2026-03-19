@@ -92,6 +92,7 @@ export interface GameSessionResponse {
   round_duration_minutes: number;
   config?: Record<string, unknown> | null;
   created_at: string;
+  teams_count?: number;
   teacher?: UserResponse;
 }
 
