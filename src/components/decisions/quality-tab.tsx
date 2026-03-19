@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { BudgetBreakdownCard } from './budget-breakdown-card';
+import { HelpReveal } from './help-reveal';
 import { TabHeader, DecisionTabContent } from './decisions-tabs';
 import { formatCurrency } from '@/lib/utils';
 import type { DecisionFormData } from '@/lib/hooks/use-decisions';
@@ -384,15 +385,16 @@ export function QualityTab({
             </div>
 
             <div className="flex items-end">
-              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 w-full">
-                <p className="font-medium mb-1">Impact des salaires</p>
-                <ul className="text-xs space-y-1 text-gray-600">
-                  <li>• Des salaires trop bas peuvent créer un turnover élevé et fragiliser l’exécution.</li>
-                  <li>• Des salaires plus élevés peuvent soutenir motivation et stabilité, mais pèsent sur les coûts.</li>
-                  <li>• Le bon niveau dépend de votre stratégie : défense de marge, montée en qualité ou recherche de performance sociale.</li>
-                  <li>• Ne regardez pas le salaire isolément : combinez-le avec vos budgets RH et votre situation financière.</li>
-                </ul>
-              </div>
+              <HelpReveal
+                title="Impact des salaires"
+                lines={[
+                  'Des salaires trop bas peuvent créer un turnover élevé et fragiliser l’exécution.',
+                  'Des salaires plus élevés peuvent soutenir motivation et stabilité, mais pèsent sur les coûts.',
+                  'Le bon niveau dépend de votre stratégie : défense de marge, montée en qualité ou recherche de performance sociale.',
+                  'Ne regardez pas le salaire isolément : combinez-le avec vos budgets RH et votre situation financière.',
+                ]}
+                className="w-full"
+              />
             </div>
           </div>
         </CardContent>

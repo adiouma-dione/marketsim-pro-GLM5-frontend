@@ -10,6 +10,7 @@ import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { HelpReveal } from './help-reveal';
 import { TabHeader, DecisionTabContent } from './decisions-tabs';
 import { formatCurrency } from '@/lib/utils';
 import type { DecisionFormData } from '@/lib/hooks/use-decisions';
@@ -177,21 +178,16 @@ export function FinanceTab({
           </div>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-700">
-                <p className="font-medium mb-1">Repères finance</p>
-                <ul className="space-y-1 text-blue-600">
-                  <li>• L’emprunt vous donne de l’oxygène immédiat, mais augmente la pression future sur vos résultats.</li>
-                  <li>• Les intérêts sont prélevés automatiquement chaque tour, même si vos ventes déçoivent.</li>
-                  <li>• Un emprunt utile finance une stratégie claire : capacité, qualité, marketing ou redressement de trésorerie.</li>
-                  <li>• Si vous empruntez pour couvrir uniquement des dépenses peu productives, votre risque financier monte vite.</li>
-                  <li>• Pensez la dette comme un levier temporaire, pas comme une source normale d’équilibre économique.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <HelpReveal
+            title="Repères finance"
+            lines={[
+              'L’emprunt vous donne de l’oxygène immédiat, mais augmente la pression future sur vos résultats.',
+              'Les intérêts sont prélevés automatiquement chaque tour, même si vos ventes déçoivent.',
+              'Un emprunt utile finance une stratégie claire : capacité, qualité, marketing ou redressement de trésorerie.',
+              'Si vous empruntez pour couvrir uniquement des dépenses peu productives, votre risque financier monte vite.',
+              'Pensez la dette comme un levier temporaire, pas comme une source normale d’équilibre économique.',
+            ]}
+          />
         </CardContent>
       </Card>
     </DecisionTabContent>

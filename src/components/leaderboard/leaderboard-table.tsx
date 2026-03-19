@@ -20,7 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatPercentage } from '@/lib/utils';
+import { formatCurrency, formatPercent } from '@/lib/utils';
 
 // ------------------------------------------------------------
 // Types
@@ -171,7 +171,7 @@ export function LeaderboardTable({
                 </TableCell>
                 <TableCell className="text-right">
                   {team.market_share_pct !== undefined
-                    ? formatPercentage(team.market_share_pct)
+                    ? formatPercent(team.market_share_pct)
                     : '-'}
                 </TableCell>
                 <TableCell className="text-right">

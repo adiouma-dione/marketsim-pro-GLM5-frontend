@@ -71,12 +71,6 @@ export default function RootLayout({
             position="top-right"
             toastOptions={{
               duration: 4000,
-              style: {
-                background: '#fff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-              },
             }}
           />
         </QueryProvider>

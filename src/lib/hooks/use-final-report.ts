@@ -111,7 +111,31 @@ export function useBadges(sessionId: string) {
       const response = await apiGet<BadgesResponse[]>(
         API_ENDPOINTS.BADGES(sessionId)
       );
-      return response as unknown as BadgeDefinition[];
+      const rawBadges = Array.isArray(response)
+        ? (response as unknown as Record<string, unknown>[])
+        : [];
+
+      return rawBadges.map((badge, index) => ({
+        badge_id:
+          typeof badge.badge_id === 'string' && badge.badge_id.length > 0
+            ? badge.badge_id
+            : typeof badge.id === 'string' && badge.id.length > 0
+              ? badge.id
+              : `badge-${index}`,
+        label:
+          typeof badge.label === 'string' && badge.label.length > 0
+            ? badge.label
+            : typeof badge.name === 'string' && badge.name.length > 0
+              ? badge.name
+              : `Badge ${index + 1}`,
+        description: typeof badge.description === 'string' ? badge.description : '',
+        icon: typeof badge.icon === 'string' ? badge.icon : 'award',
+        condition: typeof badge.condition === 'string' ? badge.condition : '',
+        rarity:
+          badge.rarity === 'rare' || badge.rarity === 'epic' || badge.rarity === 'common'
+            ? badge.rarity
+            : 'common',
+      })) satisfies BadgeDefinition[];
     },
     enabled: !!sessionId,
     staleTime: 30 * 60 * 1000,

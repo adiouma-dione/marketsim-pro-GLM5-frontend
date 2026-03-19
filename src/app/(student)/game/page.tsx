@@ -2,8 +2,17 @@
 // MarketSim Pro - Game Root Redirect
 // ============================================================
 
-import { redirect } from 'next/navigation';
+'use client';
+
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function GameRootPage() {
-  redirect('/game/dashboard');
+  const router = useRouter();
+
+  React.useEffect(() => {
+    router.replace('/game/dashboard');
+  }, [router]);
+
+  return null;
 }

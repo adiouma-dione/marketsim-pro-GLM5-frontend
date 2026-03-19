@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TabHeader, DecisionTabContent } from './decisions-tabs';
 import { BudgetBreakdownCard } from './budget-breakdown-card';
+import { HelpReveal } from './help-reveal';
 import { formatCurrency } from '@/lib/utils';
 import type { DecisionFormData } from '@/lib/hooks/use-decisions';
 
@@ -124,15 +125,15 @@ export function MarketingTab({
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <p className="text-sm font-medium text-gray-900">Repères prix</p>
-            <ul className="mt-2 space-y-2 text-sm text-gray-600">
-              <li>• Un prix bas peut soutenir les volumes, mais il comprime vite votre marge unitaire.</li>
-              <li>• Un prix plus élevé suppose une offre crédible en qualité, image et disponibilité.</li>
-              <li>• Si votre prix s’écarte trop du marché, vérifiez que votre budget marketing peut compenser.</li>
-              <li>• Comparez toujours votre prix au coût estimé, sinon vous risquez de vendre à perte.</li>
-            </ul>
-          </div>
+          <HelpReveal
+            title="Repères prix"
+            lines={[
+              'Un prix bas peut soutenir les volumes, mais il comprime vite votre marge unitaire.',
+              'Un prix plus élevé suppose une offre crédible en qualité, image et disponibilité.',
+              'Si votre prix s’écarte trop du marché, vérifiez que votre budget marketing peut compenser.',
+              'Comparez toujours votre prix au coût estimé, sinon vous risquez de vendre à perte.',
+            ]}
+          />
         </CardContent>
       </Card>
 
@@ -202,21 +203,15 @@ export function MarketingTab({
       />
 
       {/* Marketing Tips */}
-      <Card className="border-blue-200 bg-blue-50/50">
-        <CardContent className="pt-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-700">
-              <p className="font-medium mb-1">Conseils marketing</p>
-              <ul className="space-y-1 text-sm">
-                <li>• Cherchez la cohérence entre le prix affiché, la promesse marketing et la qualité perçue.</li>
-                <li>• Une hausse de budget pub est souvent plus efficace quand elle accompagne une vraie intention stratégique.</li>
-                <li>• Si vous visez un positionnement premium, évitez de combiner prix cassé et communication de masse peu ciblée.</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <HelpReveal
+        title="Conseils marketing"
+        lines={[
+          'Cherchez la cohérence entre le prix affiché, la promesse marketing et la qualité perçue.',
+          'Une hausse de budget pub est souvent plus efficace quand elle accompagne une vraie intention stratégique.',
+          'Si vous visez un positionnement premium, évitez de combiner prix cassé et communication de masse peu ciblée.',
+        ]}
+        className="shadow-none"
+      />
     </DecisionTabContent>
   );
 }

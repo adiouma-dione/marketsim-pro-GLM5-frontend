@@ -88,14 +88,15 @@ export function BadgeGrid({ badges, earnedBadges, className }: BadgeGridProps) {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {badges.map((badge) => {
+            {badges.map((badge, index) => {
               const isEarned = earnedBadgeIds.has(badge.badge_id);
-              const Icon = getIcon(badge.icon);
+              const Icon = getIcon(badge.icon || 'award');
               const rarityStyle = rarityStyles[badge.rarity] || rarityStyles.common;
               const emoji = rarityEmojis[badge.rarity] || '';
+              const badgeKey = badge.badge_id || badge.label || `badge-${index}`;
 
               return (
-                <TooltipProvider key={badge.badge_id}>
+                <TooltipProvider key={badgeKey}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div

@@ -248,6 +248,57 @@
 }
 
 /* ------------------------------------------------------------
+   Toast Styles
+   ------------------------------------------------------------ */
+
+[data-sonner-toaster] [data-sonner-toast] {
+  border-radius: 16px !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 0.12) !important;
+  backdrop-filter: blur(10px);
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-weight: 700;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: inherit;
+  opacity: 0.92;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border-color: #6ee7b7 !important;
+  color: #065f46 !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast]:not([data-type]),
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* ------------------------------------------------------------
    Skeleton loading animation
    ------------------------------------------------------------ */
 

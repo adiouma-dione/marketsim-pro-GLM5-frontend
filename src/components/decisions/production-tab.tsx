@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MachinePurchaseGrid } from './machine-purchase-card';
 import { BudgetBreakdownCard } from './budget-breakdown-card';
+import { HelpReveal } from './help-reveal';
 import { TabHeader, DecisionTabContent } from './decisions-tabs';
 import { MACHINE_CONFIG } from '@/lib/constants';
 import type { MachineType } from '@/lib/types';
@@ -146,15 +147,15 @@ export function ProductionTab({
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <p className="text-sm font-medium text-gray-900">Repères production</p>
-            <ul className="mt-2 space-y-2 text-sm text-gray-600">
-              <li>• Produire en dessous de la capacité limite le risque, mais peut vous faire perdre des ventes si la demande suit.</li>
-              <li>• Produire au-dessus de la capacité est un signal de tension opérationnelle et peut dégrader vos performances.</li>
-              <li>• Le bon volume dépend du prix choisi, du marketing engagé et de la fiabilité de votre parc machine.</li>
-              <li>• Avant d’augmenter fortement la production, vérifiez que votre maintenance et votre trésorerie sont cohérentes.</li>
-            </ul>
-          </div>
+          <HelpReveal
+            title="Repères production"
+            lines={[
+              'Produire en dessous de la capacité limite le risque, mais peut vous faire perdre des ventes si la demande suit.',
+              'Produire au-dessus de la capacité est un signal de tension opérationnelle et peut dégrader vos performances.',
+              'Le bon volume dépend du prix choisi, du marketing engagé et de la fiabilité de votre parc machine.',
+              'Avant d’augmenter fortement la production, vérifiez que votre maintenance et votre trésorerie sont cohérentes.',
+            ]}
+          />
         </CardContent>
       </Card>
 
@@ -175,14 +176,15 @@ export function ProductionTab({
             disabled={disabled}
           />
 
-          <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-            <p className="text-sm font-medium text-blue-900">Repères machines</p>
-            <ul className="mt-2 space-y-2 text-sm text-blue-700">
-              <li>• Acheter des machines augmente votre capacité, mais immobilise immédiatement de la trésorerie.</li>
-              <li>• Un parc plus large est utile seulement si vous avez un plan crédible pour l’utiliser sur plusieurs tours.</li>
-              <li>• Évitez de surinvestir en machines si votre demande reste incertaine ou votre dette déjà élevée.</li>
-            </ul>
-          </div>
+          <HelpReveal
+            title="Repères machines"
+            lines={[
+              'Acheter des machines augmente votre capacité, mais immobilise immédiatement de la trésorerie.',
+              'Un parc plus large est utile seulement si vous avez un plan crédible pour l’utiliser sur plusieurs tours.',
+              'Évitez de surinvestir en machines si votre demande reste incertaine ou votre dette déjà élevée.',
+            ]}
+            className="mt-4"
+          />
         </CardContent>
       </Card>
 

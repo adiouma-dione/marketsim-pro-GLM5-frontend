@@ -138,7 +138,57 @@ export function useLeaderboard(sessionId: string) {
       const response = await apiGet<LeaderboardResponse>(
         API_ENDPOINTS.LEADERBOARD(sessionId)
       );
-      return response as unknown as TypedLeaderboardData;
+      const rawRankings = Array.isArray((response as { rankings?: unknown[] }).rankings)
+        ? ((response as { rankings?: Record<string, unknown>[] }).rankings ?? [])
+        : [];
+
+      const rankings: LeaderboardRanking[] = rawRankings.map((entry, index) => ({
+        team_id: String(entry.team_id ?? index),
+        team_name: String(entry.team_name ?? 'Équipe'),
+        team_color:
+          typeof entry.team_color === 'string'
+            ? entry.team_color
+            : typeof entry.color_hex === 'string'
+              ? entry.color_hex
+              : undefined,
+        rank: typeof entry.rank === 'number' ? entry.rank : index + 1,
+        rank_delta:
+          typeof entry.rank_delta === 'number'
+            ? entry.rank_delta
+            : typeof entry.delta === 'number'
+              ? entry.delta
+              : undefined,
+        score:
+          typeof entry.final_score === 'number'
+            ? entry.final_score
+            : typeof entry.score === 'number'
+              ? entry.score
+              : typeof entry.total_net_income === 'number'
+                ? entry.total_net_income
+                : undefined,
+        market_share_pct:
+          typeof entry.market_share === 'number'
+            ? entry.market_share
+            : typeof entry.average_market_share === 'number'
+              ? entry.average_market_share
+              : typeof entry.market_share_pct === 'number'
+                ? entry.market_share_pct
+                : undefined,
+        cash: typeof entry.cash === 'number' ? entry.cash : undefined,
+        debt: typeof entry.debt === 'number' ? entry.debt : undefined,
+      }));
+
+      return {
+        rankings,
+        total_teams:
+          typeof (response as { total_teams?: unknown }).total_teams === 'number'
+            ? ((response as { total_teams: number }).total_teams)
+            : rankings.length,
+        updated_at:
+          typeof (response as { updated_at?: unknown }).updated_at === 'string'
+            ? ((response as { updated_at: string }).updated_at)
+            : undefined,
+      } satisfies TypedLeaderboardData;
     },
     enabled: !!sessionId,
     staleTime: 15 * 1000,

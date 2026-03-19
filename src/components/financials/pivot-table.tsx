@@ -112,9 +112,9 @@ export function PivotTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <TableRow
-              key={row.key}
+              key={`${row.key || 'row'}-${index}`}
               className={cn(
                 row.isTotal && 'bg-gray-50 font-semibold',
                 row.isSubtotal && 'bg-blue-50/50'

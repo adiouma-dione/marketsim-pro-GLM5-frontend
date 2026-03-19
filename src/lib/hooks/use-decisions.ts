@@ -283,11 +283,28 @@ export function useAutosaveDecision(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DecisionUpdate) =>
-      apiPut<DecisionResponse>(
-        API_ENDPOINTS.DECISIONS_AUTOSAVE(teamId, round),
-        extractDecisionPayload(data as DecisionFormData)
-      ),
+    mutationFn: async (data: DecisionUpdate) => {
+      const payload = extractDecisionPayload(data as DecisionFormData);
+
+      try {
+        return await apiPut<DecisionResponse>(
+          API_ENDPOINTS.DECISIONS_AUTOSAVE(teamId, round),
+          payload
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          return apiPost<DecisionResponse>(
+            API_ENDPOINTS.DECISIONS_SUBMIT(teamId),
+            extractDecisionPayload({
+              ...(data as DecisionFormData),
+              round_number: round,
+            })
+          );
+        }
+
+        throw error;
+      }
+    },
     onSuccess: (response) => {
       // Update the cached decision
       queryClient.setQueryData(
@@ -297,8 +314,7 @@ export function useAutosaveDecision(
       onSuccess?.(response.submitted_at);
     },
     onError: () => {
-      // Silent error for autosave - don't show toast
-      console.error('Autosave failed');
+      // Silent error for autosave - don't show toast or dev overlay noise.
     },
   });
 }

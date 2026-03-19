@@ -1,13 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { Calculator, Info } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TabHeader } from './decisions-tabs';
+import { HelpReveal } from './help-reveal';
 import { formatCurrency } from '@/lib/utils';
 import type { DecisionFormData } from '@/lib/hooks/use-decisions';
 
@@ -117,9 +117,6 @@ export function BudgetBreakdownCard({
               <p className="font-semibold">{formatCurrency(maxTotal)}</p>
             </div>
           </div>
-          <p className="mt-3 text-xs text-blue-700">
-            Le montant envoyé au backend est la somme automatique des postes ci-dessous.
-          </p>
         </div>
 
         <div className="space-y-3">
@@ -180,47 +177,20 @@ export function BudgetBreakdownCard({
           })}
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div
-            className={`rounded-xl border p-4 ${
-              isOverBudget
-                ? 'border-red-200 bg-red-50'
-                : 'border-emerald-200 bg-emerald-50'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <Calculator
-                className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                  isOverBudget ? 'text-red-600' : 'text-emerald-600'
-                }`}
-              />
+        <div className="grid gap-4">
+          {isOverBudget ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4">
               <div className="text-sm">
-                <p className={`font-medium ${isOverBudget ? 'text-red-700' : 'text-emerald-700'}`}>
-                  {isOverBudget ? 'Total au-dessus du plafond autorisé' : 'Total prêt pour simulation'}
-                </p>
-                <p className={isOverBudget ? 'text-red-600' : 'text-emerald-600'}>
-                  {isOverBudget
-                    ? `Réduisez ce budget de ${formatCurrency(computedTotal - maxTotal)} pour rester valide.`
-                    : `Ce poste comptera pour ${formatCurrency(computedTotal)} dans vos décisions.`}
+                <p className="font-medium text-red-700">Total au-dessus du plafond autorisé</p>
+                <p className="text-red-600">
+                  Réduisez ce budget de {formatCurrency(computedTotal - maxTotal)} pour rester valide.
                 </p>
               </div>
             </div>
-          </div>
+          ) : null}
 
           {helperLines.length > 0 ? (
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-              <div className="flex items-start gap-3">
-                <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-                <div className="text-sm text-gray-700">
-                  <p className="font-medium text-gray-900">{helperTitle || 'Repères'}</p>
-                  <ul className="mt-2 space-y-1 text-xs text-gray-600">
-                    {helperLines.map((line) => (
-                      <li key={line}>• {line}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <HelpReveal title={helperTitle || 'Repères'} lines={helperLines} />
           ) : null}
         </div>
       </CardContent>
