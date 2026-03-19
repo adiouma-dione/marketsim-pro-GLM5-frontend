@@ -28,10 +28,16 @@ type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
 
 const passwordChangeSchema = z
   .object({
-    old_password: z.string().min(8, 'Le mot de passe actuel est requis'),
+    old_password: z.string().min(1, 'Le mot de passe actuel est requis'),
     new_password: z
       .string()
-      .min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+      .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+      .refine((value) => /[A-Z]/.test(value), {
+        message: 'Le mot de passe doit contenir au moins une majuscule',
+      })
+      .refine((value) => /\d/.test(value), {
+        message: 'Le mot de passe doit contenir au moins un chiffre',
+      }),
     confirm_password: z.string().min(8, 'La confirmation est requise'),
   })
   .refine((data) => data.new_password === data.confirm_password, {
