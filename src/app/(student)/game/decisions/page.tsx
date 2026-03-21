@@ -73,6 +73,10 @@ export default function StudentDecisionsPage() {
   const { watch, reset } = formMethods;
   const formValues = watch();
   const hydratedRoundRef = React.useRef<string | null>(null);
+  const draftStorageKey = React.useMemo(
+    () => (teamId ? `marketsim:decision-draft:${teamId}:round:${currentRound}` : null),
+    [currentRound, teamId]
+  );
   const currentUserRoles = teamDetail?.current_user_roles ?? team?.current_user_roles ?? [];
   const orgChartRequired = teamDetail?.org_chart_required ?? team?.org_chart_required ?? false;
   const orgChartComplete = teamDetail?.org_chart_complete ?? team?.org_chart_complete ?? false;
@@ -114,7 +118,7 @@ export default function StudentDecisionsPage() {
       return;
     }
 
-    const hydratedValues = decision
+    const backendValues = decision
       ? {
           ...defaultDecisionValues,
           price_per_unit: decision.price_per_unit ?? defaultDecisionValues.price_per_unit,
@@ -130,9 +134,48 @@ export default function StudentDecisionsPage() {
         }
       : defaultDecisionValues;
 
+    let hydratedValues = backendValues;
+    if (draftStorageKey && typeof window !== 'undefined') {
+      const rawDraft = window.sessionStorage.getItem(draftStorageKey);
+      if (rawDraft) {
+        try {
+          const parsedDraft = JSON.parse(rawDraft) as DecisionFormData;
+          const validatedDraft = decisionSchema.safeParse(parsedDraft);
+          if (validatedDraft.success) {
+            hydratedValues = validatedDraft.data;
+          }
+        } catch {
+          window.sessionStorage.removeItem(draftStorageKey);
+        }
+      }
+    }
+
     reset(hydratedValues);
     hydratedRoundRef.current = hydrationKey;
-  }, [currentRound, decision, isLoading, reset, teamId]);
+  }, [currentRound, decision, draftStorageKey, isLoading, reset, teamId]);
+
+  React.useEffect(() => {
+    if (!draftStorageKey || !teamId || isLoading || isLocked) {
+      return;
+    }
+
+    const validatedDraft = decisionSchema.safeParse(formValues);
+    if (!validatedDraft.success) {
+      return;
+    }
+
+    window.sessionStorage.setItem(draftStorageKey, JSON.stringify(validatedDraft.data));
+  }, [draftStorageKey, formValues, isLoading, isLocked, teamId]);
+
+  React.useEffect(() => {
+    if (!draftStorageKey || typeof window === 'undefined') {
+      return;
+    }
+
+    if (submitDecision.isSuccess || isLocked) {
+      window.sessionStorage.removeItem(draftStorageKey);
+    }
+  }, [draftStorageKey, isLocked, submitDecision.isSuccess]);
 
   // Autosave
   const { lastSaved, isSaving } = useAutosaveForm(
