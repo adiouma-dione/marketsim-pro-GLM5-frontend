@@ -72,6 +72,10 @@ export function formatPercent(value: number, decimals = 1): string {
   return `${value.toFixed(decimals)}%`;
 }
 
+export function normalizePercentValue(value: number): number {
+  return Math.abs(value) <= 1 ? value * 100 : value;
+}
+
 // ------------------------------------------------------------
 // Date Formatting
 // ------------------------------------------------------------

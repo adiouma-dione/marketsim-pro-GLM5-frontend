@@ -11,6 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -65,8 +72,12 @@ export function TeamCard({
   className,
 }: TeamCardProps) {
   const [copied, setCopied] = React.useState(false);
+  const [selectedMember, setSelectedMember] = React.useState<TeamMember | null>(null);
 
   const memberCount = team.members?.length || 0;
+  const selectedMemberName = selectedMember?.full_name || selectedMember?.email || 'Membre';
+  const selectedMemberInitial =
+    selectedMemberName.trim().charAt(0).toUpperCase() || '?';
 
   const handleCopy = async () => {
     try {
@@ -82,6 +93,10 @@ export function TeamCard({
 
   const handleDelete = () => {
     onDelete?.(team.id);
+  };
+
+  const openMemberProfile = (member: TeamMember) => {
+    setSelectedMember(member);
   };
 
   const orgStatusBadge = team.org_chart_required ? (
@@ -229,9 +244,13 @@ export function TeamCard({
                     <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
                       {(member.full_name || member.email)?.[0]?.toUpperCase() || '?'}
                     </div>
-                    <span className="truncate text-gray-700">
+                    <button
+                      type="button"
+                      onClick={() => openMemberProfile(member)}
+                      className="truncate text-left text-gray-700 transition-colors hover:text-blue-700 hover:underline"
+                    >
                       {member.full_name || member.email}
-                    </span>
+                    </button>
                   </div>
                   {team.director_user_id === member.id ? (
                     <Badge className="border border-amber-200 bg-amber-50 text-amber-700">
@@ -244,6 +263,56 @@ export function TeamCard({
           </div>
         )}
       </CardContent>
+      <Dialog open={!!selectedMember} onOpenChange={(open) => !open && setSelectedMember(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Profil du membre</DialogTitle>
+            <DialogDescription>
+              Informations utiles pour la configuration de l&apos;équipe.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedMember ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-lg font-semibold text-white"
+                  style={{ backgroundColor: team.color_hex || '#3B82F6' }}
+                >
+                  {selectedMemberInitial}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold text-slate-900">
+                    {selectedMemberName}
+                  </p>
+                  <p className="truncate text-sm text-slate-500">
+                    {selectedMember.email}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Équipe</p>
+                  <p className="mt-1 text-sm font-medium text-slate-900">{team.name}</p>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Rôle</p>
+                  <p className="mt-1 text-sm font-medium text-slate-900">
+                    {team.director_user_id === selectedMember.id ? 'Directeur général' : 'Membre'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900">
+                {team.director_user_id === selectedMember.id
+                  ? 'Ce membre est le DG. Il pilote l’équipe, gère l’organigramme, achète les machines et soumet la décision finale.'
+                  : 'Ce membre participe aux décisions de l’équipe. Son rôle opérationnel détaillé peut être défini dans l’organigramme.'}
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

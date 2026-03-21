@@ -33,9 +33,9 @@ export function MarketBarChart({
   showRevenue = false,
 }: MarketBarChartProps) {
   const colors = {
-    marketing: '#93C5FD', // blue-300
-    revenue: '#86EFAC', // green-300
-    marketShare: '#FDE68A', // amber-200
+    marketing: '#2563EB',
+    revenue: '#059669',
+    marketShare: '#D97706',
   };
   const data = sessionResults.results.map((teamResult) => ({
     name: teamResult.team_name,

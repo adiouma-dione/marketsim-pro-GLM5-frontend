@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { DecisionStatusBadge } from '@/components/ui/status-badge';
-import { formatCurrency, formatPercentage, formatPercent } from '@/lib/utils';
+import { formatCurrency, formatPercent, normalizePercentValue } from '@/lib/utils';
 import type { ControlMonitorRow } from '@/lib/types';
 
 // ------------------------------------------------------------
@@ -145,7 +145,7 @@ export function MonitorTable({ rows, currentRound, className }: MonitorTableProp
 
                   {/* Market share */}
                   <TableCell className="text-right tabular-nums">
-                    {formatPercentage(row.market_share)}
+                    {formatPercent(normalizePercentValue(row.market_share), 1)}
                   </TableCell>
 
                   {/* QHSE Score */}

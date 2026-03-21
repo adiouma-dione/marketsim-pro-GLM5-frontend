@@ -36,7 +36,7 @@ interface ScatterDataPoint {
   unitsSold: number;
 }
 
-function lightenHex(color: string, amount = 0.35) {
+function lightenHex(color: string, amount = 0.18) {
   if (!color) return color;
   const normalized = color.startsWith('#') ? color.slice(1) : color;
   if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return color;

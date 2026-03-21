@@ -1,9 +1,14 @@
-// ============================================================
-// MarketSim Pro - Teacher Index Page (Redirect)
-// ============================================================
+'use client';
 
-import { redirect } from 'next/navigation';
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function TeacherIndexPage() {
-  redirect('/teacher/sessions');
+  const router = useRouter();
+
+  React.useEffect(() => {
+    router.replace('/teacher/sessions');
+  }, [router]);
+
+  return null;
 }

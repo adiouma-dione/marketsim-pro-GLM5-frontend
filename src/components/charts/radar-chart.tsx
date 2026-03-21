@@ -37,7 +37,7 @@ interface TeamRadarData {
   };
 }
 
-function lightenHex(color: string, amount = 0.25) {
+function lightenHex(color: string, amount = 0.18) {
   if (!color) return color;
   const normalized = color.startsWith('#') ? color.slice(1) : color;
   if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return color;
@@ -156,9 +156,10 @@ export function TeamRadarChart({
                     <Radar
                       name={team.teamName}
                       dataKey={team.teamId}
-                      stroke={lightenHex(team.teamColor, 0.2)}
-                      fill={lightenHex(team.teamColor, 0.5)}
-                      fillOpacity={0.35}
+                      stroke={team.teamColor || '#2563EB'}
+                      fill={lightenHex(team.teamColor || '#2563EB', 0.18)}
+                      fillOpacity={0.28}
+                      strokeWidth={2}
                     />
                   </RechartsRadarChart>
                 </ResponsiveContainer>
@@ -230,10 +231,10 @@ export function TeamRadarChart({
                 key={team.teamId}
                 name={team.teamId}
                 dataKey={team.teamId}
-                stroke={lightenHex(team.teamColor, 0.2)}
-                fill={lightenHex(team.teamColor, 0.5)}
-                fillOpacity={0.25}
-                strokeWidth={2}
+                stroke={team.teamColor || '#2563EB'}
+                fill={lightenHex(team.teamColor || '#2563EB', 0.16)}
+                fillOpacity={0.18}
+                strokeWidth={2.5}
               />
             ))}
           </RechartsRadarChart>
@@ -322,10 +323,10 @@ export function SingleTeamRadar({ teamData, title, height = 300 }: SingleRadarPr
             <Radar
               name={teamData.teamName}
               dataKey="value"
-              stroke={lightenHex(teamData.teamColor, 0.2)}
-              fill={lightenHex(teamData.teamColor, 0.5)}
-              fillOpacity={0.35}
-              strokeWidth={2}
+              stroke={teamData.teamColor || '#2563EB'}
+              fill={lightenHex(teamData.teamColor || '#2563EB', 0.16)}
+              fillOpacity={0.24}
+              strokeWidth={2.5}
             />
           </RechartsRadarChart>
         </ResponsiveContainer>

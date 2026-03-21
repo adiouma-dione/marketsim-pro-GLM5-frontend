@@ -29,22 +29,8 @@ interface ChartDataPoint {
   [teamId: string]: number | string;
 }
 
-function lightenHex(color: string, amount = 0.25) {
-  if (!color) return color;
-  const normalized = color.startsWith('#') ? color.slice(1) : color;
-  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return color;
-  const num = parseInt(normalized, 16);
-  const r = (num >> 16) & 255;
-  const g = (num >> 8) & 255;
-  const b = num & 255;
-  const mix = (channel: number) =>
-    Math.round(channel + (255 - channel) * amount);
-  const toHex = (channel: number) => channel.toString(16).padStart(2, '0');
-  return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
-}
-
 function getChartColor(color?: string) {
-  return lightenHex(color || '#60A5FA', 0.2);
+  return color || '#2563EB';
 }
 
 export function PdmLineChart({
