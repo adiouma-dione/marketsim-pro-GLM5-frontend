@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/login-form';
 import { RegisterForm } from '@/components/auth/register-form';
-import { BarChart2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 // ------------------------------------------------------------
 // Page Content Component (uses useSearchParams)
@@ -31,11 +31,6 @@ function LoginPageContent() {
 
   return (
     <div className="w-full max-w-md">
-      {/* Logo with Icon */}
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <BarChart2 className="h-7 w-7 text-blue-600" />
-      </div>
-
       {/* Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         {/* Tabs */}

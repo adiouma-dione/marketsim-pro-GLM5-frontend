@@ -135,6 +135,7 @@ export default function StudentDecisionsPage() {
     machine_type: m.machine_type,
     quantity: m.quantity,
     is_active: m.is_active,
+    purchase_round: m.purchase_round,
   })) || [];
 
   // Loading state

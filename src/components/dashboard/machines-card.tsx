@@ -9,8 +9,10 @@ import { useRouter } from 'next/navigation';
 import { Settings2, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { MachineBadge } from '@/components/ui/machine-badge';
 import { ROUTES } from '@/lib/constants';
+import { getMachineDeliveryRound } from '@/lib/machines';
 import type { MachineData, MachineType } from '@/lib/types';
 
 // ------------------------------------------------------------
@@ -76,27 +78,47 @@ export function MachinesCard({ machines, sessionId, teamId }: MachinesCardProps)
               {machineTypes.map((type) => {
                 const machinesOfType = machinesByType[type];
                 const activeCount = machinesOfType.filter((m) => m.is_active).length;
+                const pendingMachines = machinesOfType.filter((m) => !m.is_active);
 
                 return (
-                  <div
-                    key={type}
-                    className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
-                  >
-                    <MachineBadge type={type} />
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {machinesOfType.length}
-                      </span>
-                      {activeCount < machinesOfType.length && (
-                        <span className="text-xs text-amber-600">
-                          ({activeCount} active{activeCount > 1 ? 's' : ''})
+                  <div key={type} className="p-2 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <MachineBadge type={type} />
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">
+                          {machinesOfType.length}
                         </span>
-                      )}
+                        {activeCount < machinesOfType.length && (
+                          <span className="text-xs text-amber-600">
+                            ({activeCount} active{activeCount > 1 ? 's' : ''})
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    {pendingMachines.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {pendingMachines.map((machine) => (
+                          <Badge
+                            key={machine.id}
+                            variant="outline"
+                            className="border-amber-300 bg-amber-100 text-amber-800"
+                          >
+                            En livraison • Tour {getMachineDeliveryRound(machine.machine_type, machine.purchase_round)}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
+
+            {/* Pending hint */}
+            {machines.some((machine) => !machine.is_active) && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                Les machines non actives ne comptent pas encore dans votre capacité de production.
+              </div>
+            )}
 
             {/* Total Capacity */}
             <div className="pt-2 border-t">

@@ -62,6 +62,12 @@ export const MACHINE_CONFIG: Record<MachineType, MachineConfigItem> = {
   },
 };
 
+export const MACHINE_DELIVERY_DELAY: Record<MachineType, number> = {
+  basic: 0,
+  standard: 2,
+  premium: 3,
+};
+
 // ------------------------------------------------------------
 // Event Labels Configuration
 // ------------------------------------------------------------

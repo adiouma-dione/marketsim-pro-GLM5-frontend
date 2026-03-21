@@ -8,6 +8,7 @@ import * as React from 'react';
 import { Factory, Wrench } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MachinePurchaseGrid } from './machine-purchase-card';
@@ -15,6 +16,7 @@ import { BudgetBreakdownCard } from './budget-breakdown-card';
 import { HelpReveal } from './help-reveal';
 import { TabHeader, DecisionTabContent } from './decisions-tabs';
 import { MACHINE_CONFIG } from '@/lib/constants';
+import { getMachineDeliveryRound } from '@/lib/machines';
 import type { MachineType } from '@/lib/types';
 import type { DecisionFormData } from '@/lib/hooks/use-decisions';
 
@@ -28,6 +30,7 @@ interface ProductionTabProps {
     machine_type: MachineType;
     quantity: number;
     is_active: boolean;
+    purchase_round?: number;
   }>;
   onPurchaseMachine: (type: MachineType) => void;
   purchasingType?: MachineType | null;
@@ -81,6 +84,10 @@ export function ProductionTab({
   const capacityUtilization = totalCapacity > 0
     ? Math.round((productionVolume / totalCapacity) * 100)
     : 0;
+  const pendingMachines = React.useMemo(
+    () => teamMachines.filter((machine) => !machine.is_active),
+    [teamMachines]
+  );
 
   return (
     <DecisionTabContent>
@@ -176,10 +183,32 @@ export function ProductionTab({
             disabled={disabled}
           />
 
+          {pendingMachines.length > 0 && (
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+              <p className="text-sm font-medium text-amber-900">
+                Machines en attente de livraison
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {pendingMachines.map((machine, index) => (
+                  <Badge
+                    key={`${machine.machine_type}-${machine.quantity}-${index}`}
+                    variant="outline"
+                    className="border-amber-300 bg-amber-100 text-amber-800"
+                  >
+                    {MACHINE_CONFIG[machine.machine_type].label} x{machine.quantity} •
+                    Tour {getMachineDeliveryRound(machine.machine_type, machine.purchase_round ?? 1)}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           <HelpReveal
             title="Repères machines"
             lines={[
               'Acheter des machines augmente votre capacité, mais immobilise immédiatement de la trésorerie.',
+              'Avant de boucler le tour 1, chaque équipe doit avoir acheté au moins une machine.',
+              'Les machines basic sont livrées immédiatement, les standard après 2 tours et les premium après 3 tours.',
               'Un parc plus large est utile seulement si vous avez un plan crédible pour l’utiliser sur plusieurs tours.',
               'Évitez de surinvestir en machines si votre demande reste incertaine ou votre dette déjà élevée.',
             ]}

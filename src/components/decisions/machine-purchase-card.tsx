@@ -13,6 +13,12 @@ import { Badge } from '@/components/ui/badge';
 import { MACHINE_CONFIG, MACHINE_BADGE_CONFIG } from '@/lib/constants';
 import type { MachineType } from '@/lib/types';
 
+const MACHINE_DELIVERY_LABELS: Record<MachineType, string> = {
+  basic: 'Immédiate',
+  standard: 'Après 2 tours',
+  premium: 'Après 3 tours',
+};
+
 // ------------------------------------------------------------
 // Props
 // ------------------------------------------------------------
@@ -41,6 +47,7 @@ export function MachinePurchaseCard({
   const config = MACHINE_CONFIG[type];
   const badgeConfig = MACHINE_BADGE_CONFIG[type];
   const Icon = config.icon;
+  const deliveryLabel = MACHINE_DELIVERY_LABELS[type];
 
   const canAfford = teamCash >= config.price;
   const isDisabled = disabled || !canAfford;
@@ -132,6 +139,12 @@ export function MachinePurchaseCard({
               )}
             >
               {config.defectRate}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Livraison</span>
+            <span className="font-medium text-gray-700">
+              {deliveryLabel}
             </span>
           </div>
         </div>
