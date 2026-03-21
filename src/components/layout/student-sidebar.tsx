@@ -17,6 +17,7 @@ import {
   Award,
   Settings,
   Loader2,
+  Network,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -28,7 +29,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 // Navigation Items
 // ------------------------------------------------------------
 
-const navItems: Array<{
+const baseNavItems: Array<{
   label: string;
   href: string;
   icon: typeof LayoutDashboard;
@@ -42,6 +43,11 @@ const navItems: Array<{
     label: 'Mes Décisions',
     href: '/game/decisions',
     icon: ClipboardList,
+  },
+  {
+    label: 'Organigramme',
+    href: '/game/org-chart',
+    icon: Network,
   },
   {
     label: 'Résultats',
@@ -83,6 +89,14 @@ export function StudentSidebar() {
   const { user } = useAuthStore();
 
   const team = teamData;
+  const canManageOrgChart = team?.current_user_roles?.includes('dg') ?? false;
+  const navItems = React.useMemo(
+    () =>
+      baseNavItems.filter((item) =>
+        item.href === '/game/org-chart' ? canManageOrgChart : true
+      ),
+    [canManageOrgChart]
+  );
 
   const getInitials = (name?: string) => {
     if (!name) return '?';

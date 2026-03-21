@@ -140,8 +140,6 @@ export function ParametersStep({
   const onSubmit = async (data: ParametersFormData) => {
     if (isLocked) return;
     await updateSetup.mutateAsync({
-      teams: setup?.teams || [],
-      student_assignments: setup?.student_assignments || {},
       advanced: data,
     });
   };

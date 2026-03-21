@@ -5,10 +5,18 @@
 'use client';
 
 import * as React from 'react';
-import { Copy, Trash2, Users, Check } from 'lucide-react';
+import { Copy, Trash2, Users, Check, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 
 // ------------------------------------------------------------
@@ -25,6 +33,9 @@ interface TeamCardData {
   id: string;
   name: string;
   color_hex: string;
+  director_user_id?: string | null;
+  org_chart_required?: boolean;
+  org_chart_complete?: boolean;
   members?: TeamMember[];
 }
 
@@ -36,7 +47,9 @@ interface TeamCardProps {
   team: TeamCardData;
   onCopyCode?: (code: string) => void;
   onDelete?: (teamId: string) => void;
+  onChangeDirector?: (teamId: string, directorUserId: string | null) => void;
   isDeleting?: boolean;
+  isSavingDirector?: boolean;
   isLocked?: boolean;
   className?: string;
 }
@@ -45,7 +58,9 @@ export function TeamCard({
   team,
   onCopyCode,
   onDelete,
+  onChangeDirector,
   isDeleting = false,
+  isSavingDirector = false,
   isLocked = false,
   className,
 }: TeamCardProps) {
@@ -68,6 +83,23 @@ export function TeamCard({
   const handleDelete = () => {
     onDelete?.(team.id);
   };
+
+  const orgStatusBadge = team.org_chart_required ? (
+    <Badge
+      className={cn(
+        'border',
+        team.org_chart_complete
+          ? 'border-green-200 bg-green-50 text-green-700'
+          : 'border-amber-200 bg-amber-50 text-amber-800'
+      )}
+    >
+      {team.org_chart_complete ? 'Organigramme complet' : 'Organigramme requis'}
+    </Badge>
+  ) : (
+    <Badge className="border border-slate-200 bg-slate-50 text-slate-700">
+      Organigramme optionnel
+    </Badge>
+  );
 
   return (
     <Card
@@ -102,6 +134,8 @@ export function TeamCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">{orgStatusBadge}</div>
+
         {/* Invitation Code */}
         <div className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
           <div className="flex items-center gap-2">
@@ -152,6 +186,35 @@ export function TeamCard({
           )}
         </div>
 
+        <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+            <Crown className="h-4 w-4 text-amber-500" />
+            Directeur général
+          </div>
+          <Select
+            value={team.director_user_id ?? '__none__'}
+            onValueChange={(value) =>
+              onChangeDirector?.(team.id, value === '__none__' ? null : value)
+            }
+            disabled={isLocked || isSavingDirector || memberCount === 0}
+          >
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Choisir le DG" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">Aucun DG</SelectItem>
+              {(team.members ?? []).map((member) => (
+                <SelectItem key={member.id} value={member.id}>
+                  {member.full_name || member.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-slate-500">
+            Le DG pilote l’équipe, achète les machines et soumet la décision finale.
+          </p>
+        </div>
+
         {/* Member List */}
         {memberCount > 0 && team.members && (
           <div className="pt-2 border-t border-gray-100">
@@ -160,14 +223,21 @@ export function TeamCard({
               {team.members.map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center justify-between gap-2 text-sm"
                 >
-                  <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                    {(member.full_name || member.email)?.[0]?.toUpperCase() || '?'}
+                  <div className="flex min-w-0 items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                      {(member.full_name || member.email)?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <span className="truncate text-gray-700">
+                      {member.full_name || member.email}
+                    </span>
                   </div>
-                  <span className="text-gray-700 truncate">
-                    {member.full_name || member.email}
-                  </span>
+                  {team.director_user_id === member.id ? (
+                    <Badge className="border border-amber-200 bg-amber-50 text-amber-700">
+                      DG
+                    </Badge>
+                  ) : null}
                 </div>
               ))}
             </div>

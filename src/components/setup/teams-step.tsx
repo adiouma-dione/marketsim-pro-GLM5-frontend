@@ -35,6 +35,7 @@ import {
   useCreateTeam,
   useDeleteTeam,
   useAssignStudent,
+  useUpdateSetup,
 } from '@/lib/hooks/use-session-setup';
 import { useSession } from '@/lib/hooks/use-sessions';
 import { TEAM_COLOR_PALETTE } from '@/lib/constants';
@@ -67,6 +68,7 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
   const createTeam = useCreateTeam(sessionId);
   const deleteTeam = useDeleteTeam(sessionId);
   const assignStudent = useAssignStudent(sessionId);
+  const updateSetup = useUpdateSetup(sessionId);
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [selectedColor, setSelectedColor] = React.useState<typeof TEAM_COLOR_PALETTE[number]>(TEAM_COLOR_PALETTE[0]);
@@ -113,6 +115,9 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
     const assignments = setup.student_assignments || {};
     return setup.teams.map((team) => ({
       ...team,
+      director_user_id: setup.team_directors?.[team.id] ?? null,
+      org_chart_required: setup.team_org_required?.[team.id] ?? false,
+      org_chart_complete: setup.team_org_complete?.[team.id] ?? false,
       members: (assignments[team.id] || [])
         .map((id) => studentsById.get(id))
         .filter((member): member is NonNullable<typeof member> => Boolean(member)),
@@ -135,6 +140,14 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
   // Handle student assignment
   const handleAssignStudent = (studentId: string, teamId: string) => {
     assignStudent.mutate({ teamId, studentId });
+  };
+
+  const handleChangeDirector = (teamId: string, directorUserId: string | null) => {
+    updateSetup.mutate({
+      team_directors: {
+        [teamId]: directorUserId,
+      },
+    });
   };
 
   // Loading state
@@ -282,7 +295,9 @@ export function TeamsStep({ sessionId, onNext }: TeamsStepProps) {
               key={team.id}
               team={team}
               onDelete={handleDeleteTeam}
+              onChangeDirector={handleChangeDirector}
               isDeleting={deleteTeam.isPending}
+              isSavingDirector={updateSetup.isPending}
               isLocked={isLocked}
             />
           ))}

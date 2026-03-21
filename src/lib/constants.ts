@@ -327,6 +327,8 @@ export const API_ENDPOINTS = {
     `/api/v1/teams/${teamId}`,
   TEAM_BUY_MACHINE: (teamId: string) =>
     `/api/v1/teams/${teamId}/machines`,
+  TEAM_ORG_CHART: (teamId: string) =>
+    `/api/v1/teams/${teamId}/org-chart`,
 
   // Results
   RESULTS_ROUND: (sessionId: string, round: number) =>
@@ -415,6 +417,7 @@ export const ROUTES = {
   TEACHER_FINAL: (id: string) => `/teacher/sessions/${id}/final`,
   STUDENT_DASHBOARD: '/game/dashboard',
   STUDENT_DECISIONS: '/game/decisions',
+  STUDENT_ORG_CHART: '/game/org-chart',
   STUDENT_RESULTS: '/game/results',
   STUDENT_FINANCES: '/game/finances',
   STUDENT_RANKING: '/game/ranking',

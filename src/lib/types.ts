@@ -120,6 +120,9 @@ export interface TeacherSetupResponse {
   teams: TeacherSetupTeam[];
   students: TeacherSetupStudent[];
   student_assignments: Record<string, string[]>;
+  team_directors: Record<string, string | null>;
+  team_org_required: Record<string, boolean>;
+  team_org_complete: Record<string, boolean>;
   advanced: TeacherSetupAdvanced;
 }
 
@@ -269,6 +272,7 @@ export interface TeamMemberResponse {
   id: string;
   email: string;
   full_name?: string;
+  org_roles?: string[];
 }
 
 export interface TeamResponse {
@@ -282,10 +286,34 @@ export interface TeamResponse {
   brand_score: number;
   created_at: string;
   machines?: MachineData[];
+  current_user_roles?: string[];
+  director_user_id?: string | null;
+  org_chart_required?: boolean;
+  org_chart_complete?: boolean;
 }
 
 export interface TeamDetailResponse extends TeamResponse {
   members: TeamMemberResponse[];
+}
+
+export interface TeamOrgChartResponse {
+  team_id: string;
+  director_user_id?: string | null;
+  production_user_ids: string[];
+  finance_user_ids: string[];
+  marketing_user_ids: string[];
+  quality_hr_user_ids: string[];
+  required: boolean;
+  complete: boolean;
+  missing_roles: string[];
+}
+
+export interface TeamOrgChartUpdateRequest {
+  director_user_id?: string | null;
+  production_user_ids: string[];
+  finance_user_ids: string[];
+  marketing_user_ids: string[];
+  quality_hr_user_ids: string[];
 }
 
 export interface TeamDashboard {

@@ -34,7 +34,8 @@ interface ProductionTabProps {
   }>;
   onPurchaseMachine: (type: MachineType) => void;
   purchasingType?: MachineType | null;
-  disabled?: boolean;
+  editingDisabled?: boolean;
+  purchaseDisabled?: boolean;
 }
 
 // ------------------------------------------------------------
@@ -46,7 +47,8 @@ export function ProductionTab({
   teamMachines,
   onPurchaseMachine,
   purchasingType,
-  disabled = false,
+  editingDisabled = false,
+  purchaseDisabled = false,
 }: ProductionTabProps) {
   const {
     register,
@@ -112,7 +114,7 @@ export function ProductionTab({
                 min={100}
                 max={10000}
                 {...register('production_volume', { valueAsNumber: true })}
-                disabled={disabled}
+                disabled={editingDisabled}
                 className={errors.production_volume ? 'border-red-500' : ''}
               />
               {errors.production_volume && (
@@ -180,8 +182,14 @@ export function ProductionTab({
             ownedMachines={ownedMachines}
             onPurchase={onPurchaseMachine}
             purchasingType={purchasingType}
-            disabled={disabled}
+            disabled={purchaseDisabled}
           />
+
+          {purchaseDisabled ? (
+            <p className="mt-3 text-sm text-amber-700">
+              L’achat de machines est réservé au DG de l’équipe.
+            </p>
+          ) : null}
 
           {pendingMachines.length > 0 && (
             <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
@@ -224,7 +232,7 @@ export function ProductionTab({
         totalField="maintenance_budget"
         breakdownField="maintenance_breakdown"
         maxTotal={50000}
-        disabled={disabled}
+        disabled={editingDisabled}
         items={[
           {
             key: 'preventive_visits',

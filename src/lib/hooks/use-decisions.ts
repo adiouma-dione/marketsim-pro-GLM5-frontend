@@ -285,25 +285,10 @@ export function useAutosaveDecision(
   return useMutation({
     mutationFn: async (data: DecisionUpdate) => {
       const payload = extractDecisionPayload(data as DecisionFormData);
-
-      try {
-        return await apiPut<DecisionResponse>(
-          API_ENDPOINTS.DECISIONS_AUTOSAVE(teamId, round),
-          payload
-        );
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          return apiPost<DecisionResponse>(
-            API_ENDPOINTS.DECISIONS_SUBMIT(teamId),
-            extractDecisionPayload({
-              ...(data as DecisionFormData),
-              round_number: round,
-            })
-          );
-        }
-
-        throw error;
-      }
+      return apiPut<DecisionResponse>(
+        API_ENDPOINTS.DECISIONS_AUTOSAVE(teamId, round),
+        payload
+      );
     },
     onSuccess: (response) => {
       // Update the cached decision
@@ -382,7 +367,8 @@ export function useAutosaveForm(
   teamId: string,
   round: number,
   formValues: DecisionFormData,
-  isLocked: boolean
+  isLocked: boolean,
+  enabled = true
 ) {
   const autosaveMutation = useAutosaveDecision(teamId, round);
   const [lastSaved, setLastSaved] = useState('');
@@ -392,7 +378,7 @@ export function useAutosaveForm(
   // Debounced autosave function
   const performAutosave = useCallback(
     (values: DecisionFormData) => {
-      if (isLocked) return;
+      if (isLocked || !enabled) return;
 
       // Check if values actually changed
       const valuesJson = JSON.stringify(values);
@@ -413,7 +399,7 @@ export function useAutosaveForm(
         });
       }, 30000);
     },
-    [autosaveMutation, isLocked]
+    [autosaveMutation, enabled, isLocked]
   );
 
   // Watch form values and trigger autosave
@@ -433,6 +419,7 @@ export function useAutosaveForm(
       if (
         document.visibilityState === 'hidden' &&
         !isLocked &&
+        enabled &&
         lastValuesRef.current
       ) {
         // Clear the debounce timeout and save immediately
@@ -449,7 +436,7 @@ export function useAutosaveForm(
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [autosaveMutation, isLocked]);
+  }, [autosaveMutation, enabled, isLocked]);
 
   return {
     lastSaved,

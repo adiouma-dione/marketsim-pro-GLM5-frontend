@@ -32,6 +32,8 @@ interface DecisionSummaryProps {
   teamCash: number;
   currentRound: number;
   isLocked: boolean;
+  canSubmit: boolean;
+  submitBlockedReason?: string | null;
   isSubmitting: boolean;
   lastSaved?: string;
   onSubmit: () => void;
@@ -45,6 +47,8 @@ export function DecisionSummary({
   teamCash,
   currentRound,
   isLocked,
+  canSubmit,
+  submitBlockedReason,
   isSubmitting,
   lastSaved,
   onSubmit,
@@ -178,6 +182,15 @@ export function DecisionSummary({
               </p>
               <p className="text-xs text-red-600 mt-1">
                 Vous ne pouvez plus modifier vos décisions pour ce tour.
+              </p>
+            </div>
+          ) : !canSubmit ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-sm text-amber-800 font-medium">
+                Soumission finale indisponible
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                {submitBlockedReason || 'Seul le DG peut soumettre la décision finale.'}
               </p>
             </div>
           ) : (

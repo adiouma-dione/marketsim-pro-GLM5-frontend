@@ -11,6 +11,22 @@ import { HelpReveal } from './help-reveal';
 import { formatCurrency } from '@/lib/utils';
 import type { DecisionFormData } from '@/lib/hooks/use-decisions';
 
+type BudgetTotalField =
+  | 'marketing_budget'
+  | 'maintenance_budget'
+  | 'qhse_investment'
+  | 'hr_investment'
+  | 'rd_investment';
+
+type BudgetBreakdownField =
+  | 'marketing_breakdown'
+  | 'maintenance_breakdown'
+  | 'qhse_breakdown'
+  | 'hr_breakdown'
+  | 'rd_breakdown';
+
+type NumericBreakdown = Record<string, number>;
+
 interface BudgetBreakdownItem {
   key: string;
   label: string;
@@ -23,8 +39,8 @@ interface BudgetBreakdownCardProps {
   title: string;
   description: string;
   icon: React.ElementType;
-  totalField: keyof DecisionFormData;
-  breakdownField: string;
+  totalField: BudgetTotalField;
+  breakdownField: BudgetBreakdownField;
   items: BudgetBreakdownItem[];
   maxTotal: number;
   disabled?: boolean;
@@ -47,7 +63,8 @@ export function BudgetBreakdownCard({
   const { register, watch, setValue, getValues } = useFormContext<DecisionFormData>();
   const initializedRef = React.useRef(false);
 
-  const breakdown = (watch(breakdownField as never) as Record<string, number> | undefined) || {};
+  const breakdown =
+    ((watch(breakdownField as never) as unknown as NumericBreakdown | undefined) || {});
   const currentTotal = Number(watch(totalField) || 0);
 
   const computedTotal = React.useMemo(
@@ -67,7 +84,7 @@ export function BudgetBreakdownCard({
     initializedRef.current = true;
     const initialTotal = Number(getValues(totalField) || 0);
     const initialBreakdown =
-      (getValues(breakdownField as never) as Record<string, number> | undefined) || {};
+      ((getValues(breakdownField as never) as unknown as NumericBreakdown | undefined) || {});
     const breakdownSum = items.reduce((sum, item) => {
       return sum + Number(initialBreakdown[item.key] || 0) * item.unitCost;
     }, 0);

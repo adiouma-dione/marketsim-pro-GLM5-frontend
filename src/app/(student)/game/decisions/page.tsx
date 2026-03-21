@@ -72,6 +72,33 @@ export default function StudentDecisionsPage() {
 
   const { watch, reset } = formMethods;
   const formValues = watch();
+  const currentUserRoles = teamDetail?.current_user_roles ?? team?.current_user_roles ?? [];
+  const orgChartRequired = teamDetail?.org_chart_required ?? team?.org_chart_required ?? false;
+  const orgChartComplete = teamDetail?.org_chart_complete ?? team?.org_chart_complete ?? false;
+  const hasDirector = Boolean(teamDetail?.director_user_id ?? team?.director_user_id);
+  const orgChartEnabled = orgChartRequired || hasDirector || currentUserRoles.length > 0;
+  const isDirector = currentUserRoles.includes('dg');
+
+  const canEditAll = !orgChartEnabled || isDirector;
+  const canEditProduction = canEditAll || currentUserRoles.includes('production');
+  const canEditFinance = canEditAll || currentUserRoles.includes('finance');
+  const canEditMarketing = canEditAll || currentUserRoles.includes('marketing');
+  const canEditQuality = canEditAll || currentUserRoles.includes('quality_hr');
+  const canEditAnyDecision =
+    canEditProduction || canEditFinance || canEditMarketing || canEditQuality;
+  const canBuyMachine = !orgChartEnabled || isDirector;
+  const canSubmitDecision = !orgChartEnabled || isDirector;
+
+  const submitBlockedReason = React.useMemo(() => {
+    if (!orgChartEnabled) return null;
+    if (!isDirector) {
+      return "Seul le DG peut soumettre la décision finale.";
+    }
+    if (orgChartRequired && !orgChartComplete) {
+      return "Complétez d'abord l'organigramme avant la soumission finale.";
+    }
+    return null;
+  }, [isDirector, orgChartComplete, orgChartEnabled, orgChartRequired]);
 
   // Initialize form with existing decision data
   React.useEffect(() => {
@@ -97,7 +124,8 @@ export default function StudentDecisionsPage() {
     teamId || '',
     currentRound,
     formValues,
-    isLocked
+    isLocked,
+    canEditAnyDecision
   );
 
   // Format saved time for badge
@@ -117,6 +145,9 @@ export default function StudentDecisionsPage() {
 
   // Handle decision submission
   const handleSubmit = () => {
+    if (!canSubmitDecision || (orgChartRequired && !orgChartComplete)) {
+      return;
+    }
     submitDecision.mutate(
       extractDecisionPayload({
         ...formValues,
@@ -232,6 +263,25 @@ export default function StudentDecisionsPage() {
         </Alert>
       )}
 
+      {orgChartEnabled && (
+        <Alert className="border-blue-200 bg-blue-50">
+          <AlertDescription className="text-blue-900">
+            {isDirector
+              ? "Vous êtes DG. Vous pouvez coordonner les décisions, acheter des machines et faire la soumission finale."
+              : `Vos droits de modification sont limités à : ${
+                  [
+                    canEditProduction ? 'production' : null,
+                    canEditFinance ? 'finance' : null,
+                    canEditMarketing ? 'marketing' : null,
+                    canEditQuality ? 'qualité & RH' : null,
+                  ]
+                    .filter(Boolean)
+                    .join(', ') || 'aucun périmètre'
+                }.`}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Main Content */}
       <div
         className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${
@@ -247,22 +297,23 @@ export default function StudentDecisionsPage() {
                 teamMachines={teamMachines}
                 onPurchaseMachine={handlePurchaseMachine}
                 purchasingType={purchasingType}
-                disabled={isLocked}
+                editingDisabled={isLocked || !canEditProduction}
+                purchaseDisabled={isLocked || !canBuyMachine}
               />
               <FinanceTab
                 teamDebt={teamDetail?.debt ?? 0}
                 interestRate={interestRate}
-                disabled={isLocked}
+                disabled={isLocked || !canEditFinance}
               />
               <MarketingTab
                 averageMarketPrice={marketReport?.average_price}
                 estimatedCostPerUnit={estimatedCostPerUnit}
-                disabled={isLocked}
+                disabled={isLocked || !canEditMarketing}
               />
               <QualityTab
                 currentQhseScore={teamDetail?.machines?.[0]?.id ? 50 : undefined}
                 cumulativeRdInvestment={0}
-                disabled={isLocked}
+                disabled={isLocked || !canEditQuality}
               />
             </DecisionsTabs>
           </FormProvider>
@@ -275,6 +326,8 @@ export default function StudentDecisionsPage() {
               teamCash={teamDetail?.cash ?? 0}
               currentRound={currentRound}
               isLocked={isLocked}
+              canSubmit={canSubmitDecision && !(orgChartRequired && !orgChartComplete)}
+              submitBlockedReason={submitBlockedReason}
               isSubmitting={submitDecision.isPending}
               lastSaved={lastSaved}
               onSubmit={handleSubmit}
