@@ -72,6 +72,7 @@ export default function StudentDecisionsPage() {
 
   const { watch, reset } = formMethods;
   const formValues = watch();
+  const hydratedRoundRef = React.useRef<string | null>(null);
   const currentUserRoles = teamDetail?.current_user_roles ?? team?.current_user_roles ?? [];
   const orgChartRequired = teamDetail?.org_chart_required ?? team?.org_chart_required ?? false;
   const orgChartComplete = teamDetail?.org_chart_complete ?? team?.org_chart_complete ?? false;
@@ -100,24 +101,38 @@ export default function StudentDecisionsPage() {
     return null;
   }, [isDirector, orgChartComplete, orgChartEnabled, orgChartRequired]);
 
-  // Initialize form with existing decision data
+  // Initialize form once per team/round. The backend only stores aggregated totals,
+  // so re-running reset after local edits would collapse detailed budget fields back
+  // into the "adjustment" line.
   React.useEffect(() => {
-    if (decision) {
-      reset({
-        ...defaultDecisionValues,
-        price_per_unit: decision.price_per_unit ?? defaultDecisionValues.price_per_unit,
-        production_volume: decision.production_volume ?? defaultDecisionValues.production_volume,
-        marketing_budget: decision.marketing_budget ?? defaultDecisionValues.marketing_budget,
-        maintenance_budget: decision.maintenance_budget ?? defaultDecisionValues.maintenance_budget,
-        loan_amount: decision.loan_amount ?? defaultDecisionValues.loan_amount,
-        rd_investment: decision.rd_investment ?? defaultDecisionValues.rd_investment,
-        qhse_investment: decision.qhse_investment ?? defaultDecisionValues.qhse_investment,
-        hr_investment: decision.hr_investment ?? defaultDecisionValues.hr_investment,
-        avg_salary: decision.avg_salary ?? defaultDecisionValues.avg_salary,
-        ...buildDecisionBreakdownsFromTotals(decision),
-      });
+    if (!teamId || isLoading) {
+      return;
     }
-  }, [decision, reset]);
+
+    const hydrationKey = `${teamId}:${currentRound}`;
+    if (hydratedRoundRef.current === hydrationKey) {
+      return;
+    }
+
+    const hydratedValues = decision
+      ? {
+          ...defaultDecisionValues,
+          price_per_unit: decision.price_per_unit ?? defaultDecisionValues.price_per_unit,
+          production_volume: decision.production_volume ?? defaultDecisionValues.production_volume,
+          marketing_budget: decision.marketing_budget ?? defaultDecisionValues.marketing_budget,
+          maintenance_budget: decision.maintenance_budget ?? defaultDecisionValues.maintenance_budget,
+          loan_amount: decision.loan_amount ?? defaultDecisionValues.loan_amount,
+          rd_investment: decision.rd_investment ?? defaultDecisionValues.rd_investment,
+          qhse_investment: decision.qhse_investment ?? defaultDecisionValues.qhse_investment,
+          hr_investment: decision.hr_investment ?? defaultDecisionValues.hr_investment,
+          avg_salary: decision.avg_salary ?? defaultDecisionValues.avg_salary,
+          ...buildDecisionBreakdownsFromTotals(decision),
+        }
+      : defaultDecisionValues;
+
+    reset(hydratedValues);
+    hydratedRoundRef.current = hydrationKey;
+  }, [currentRound, decision, isLoading, reset, teamId]);
 
   // Autosave
   const { lastSaved, isSaving } = useAutosaveForm(
